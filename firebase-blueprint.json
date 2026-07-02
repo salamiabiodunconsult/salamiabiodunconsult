@@ -1,0 +1,102 @@
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "User profile containing roles, gamified stats, and access status",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string" },
+        "profileCompleted": { "type": "boolean" },
+        "xp": { "type": "integer" },
+        "badges": { "type": "array" },
+        "accessStatus": { "type": "string" },
+        "termEnd": { "type": "string" },
+        "paidBy": { "type": "string" },
+        "children": { "type": "array" },
+        "phone": { "type": "string" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "chat_message": {
+      "title": "ChatMessage",
+      "description": "Real-time message between mentors and mentees",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "chatId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "chatId", "senderId", "text", "timestamp"]
+    },
+    "notification": {
+      "title": "Notification",
+      "description": "Alert triggered for a specific user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "read": { "type": "boolean" }
+      },
+      "required": ["id", "userId", "text", "timestamp", "read"]
+    },
+    "commission": {
+      "title": "Commission",
+      "description": "Financial logs tracking platform revenue, school admin discounts, mentor and teacher payouts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "amount": { "type": "number" },
+        "type": { "type": "string" },
+        "courseId": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "userId", "amount", "type", "timestamp"]
+    },
+    "appointment": {
+      "title": "Appointment",
+      "description": "Google Meet or Calendar booking for Brand Audits",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "clientEmail": { "type": "string" },
+        "clientName": { "type": "string" },
+        "dateTime": { "type": "string" },
+        "serviceType": { "type": "string" },
+        "meetLink": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "clientEmail", "clientName", "dateTime", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "user",
+      "description": "User profiles and role settings"
+    },
+    "/chats/{chatId}/messages/{messageId}": {
+      "schema": "chat_message",
+      "description": "Chat messages for mentor-mentee real-time help"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "notification",
+      "description": "System and custom notifications for users"
+    },
+    "/commissions/{commissionId}": {
+      "schema": "commission",
+      "description": "Commission and financial record logs"
+    },
+    "/appointments/{appointmentId}": {
+      "schema": "appointment",
+      "description": "Google Calendar and Meet brand appointments"
+    }
+  }
+}
