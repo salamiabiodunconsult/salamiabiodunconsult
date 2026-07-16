@@ -28,7 +28,8 @@ import SitemapPage from './pages/SitemapPage';
 import { UserProfile, Course, Appointment, BrandAudit } from './types';
 import { 
   getAppointments, getBrandAudits, bookAppointment, saveBrandAudit, 
-  updateProfileFields, saveProfile, getCourses, getCurrentUserSync, onAuthUserProfileChanged
+  updateProfileFields, saveProfile, getCourses, getCurrentUserSync, onAuthUserProfileChanged,
+  enrollInCourse
 } from './firebase';
 import { Bell, Sparkles, Check, CheckCircle2, ShieldAlert } from 'lucide-react';
 
@@ -66,6 +67,7 @@ export default function App() {
   const [isPaystackOpen, setIsPaystackOpen] = useState(false);
   const [payAmount, setPayAmount] = useState<number>(0);
   const [payPlanName, setPayPlanName] = useState<string>('');
+  const [enrollingCourse, setEnrollingCourse] = useState<Course | null>(null);
 
   // Course certificate modal trigger
   const [isCertificateOpen, setIsCertificateOpen] = useState(false);
@@ -224,12 +226,58 @@ export default function App() {
     setIsPaystackOpen(true);
   };
 
+  const getCourseDurationDetails = (courseId: string) => {
+    switch (courseId) {
+      case 'course-1': // Advanced AI
+        return { days: 3, hoursPerDay: 3 };
+      case 'course-2': // Digital Marketing
+        return { days: 2, hoursPerDay: 3 };
+      case 'course-3': // React & Vite
+        return { days: 3, hoursPerDay: 4 };
+      case 'course-kidztech-scratch': // Scratch
+        return { days: 2, hoursPerDay: 2 };
+      default:
+        return { days: 2, hoursPerDay: 3 };
+    }
+  };
+
   // Payment completed callback handler
-  const handlePaymentSuccess = (payerEmail: string) => {
-    triggerToast(`Success! Payment of ₦${(payAmount || 0).toLocaleString()} NGN processed via Paystack. Enrolled!`);
-    // If user is logged in, grant full access
-    if (currentUser) {
-      setCurrentUser(prev => prev ? { ...prev, accessLevel: 'Premium' } : null);
+  const handlePaymentSuccess = async (payerEmail: string) => {
+    try {
+      if (currentUser) {
+        if (enrollingCourse) {
+          const durationInfo = getCourseDurationDetails(enrollingCourse.id);
+          await enrollInCourse(
+            currentUser.uid,
+            currentUser.email,
+            enrollingCourse.id,
+            enrollingCourse.title,
+            'Online',
+            payAmount,
+            'Instant Access',
+            'Self-Paced Sandbox',
+            durationInfo.days,
+            durationInfo.hoursPerDay,
+            'Paid'
+          );
+          triggerToast(`Successfully enrolled in ${enrollingCourse.title}! Synchronized with your ${currentUser.role} dashboard.`);
+        } else {
+          triggerToast(`Success! Payment of ₦${(payAmount || 0).toLocaleString()} NGN processed via Paystack.`);
+        }
+        
+        // Upgrade current user access level
+        setCurrentUser(prev => prev ? { ...prev, accessLevel: 'Premium' } : null);
+        
+        // Redirect to dashboard to see results instantly
+        setActivePage('dashboard');
+      } else {
+        triggerToast(`Success! Payment of ₦${(payAmount || 0).toLocaleString()} NGN processed via Paystack. Please log in to view your dashboard.`);
+      }
+    } catch (err: any) {
+      console.error("Payment enrollment error:", err);
+      triggerToast(`Payment successful, but database synchronization failed: ${err.message || err}`);
+    } finally {
+      setEnrollingCourse(null);
     }
   };
 
@@ -321,19 +369,28 @@ export default function App() {
         
         {activePage === 'courses' && (
           <CoursesPage 
-            onEnroll={(course) => handleCheckoutTrigger(course.price, `Academy Course: ${course.title}`)}
+            onEnroll={(course) => {
+              setEnrollingCourse(course);
+              handleCheckoutTrigger(course.price, `Academy Course: ${course.title}`);
+            }}
           />
         )}
 
         {activePage === 'pricing' && (
           <PricingPage 
-            onSelectPlan={(amount, name) => handleCheckoutTrigger(amount, name)}
+            onSelectPlan={(amount, name) => {
+              setEnrollingCourse(null);
+              handleCheckoutTrigger(amount, name);
+            }}
           />
         )}
 
         {activePage === 'marketplace' && (
           <MarketplacePage 
-            onCheckout={(amount, name) => handleCheckoutTrigger(amount, name)}
+            onCheckout={(amount, name) => {
+              setEnrollingCourse(null);
+              handleCheckoutTrigger(amount, name);
+            }}
             onTriggerNotification={(text) => triggerToast(text)}
           />
         )}
@@ -369,8 +426,14 @@ export default function App() {
 
          {activePage === 'academy' && (
           <AcademyPage 
-            onEnroll={(course) => handleCheckoutTrigger(course.price, `Academy Course: ${course.title}`)}
-            onSelectPlan={(amount, name) => handleCheckoutTrigger(amount, name)}
+            onEnroll={(course) => {
+              setEnrollingCourse(course);
+              handleCheckoutTrigger(course.price, `Academy Course: ${course.title}`);
+            }}
+            onSelectPlan={(amount, name) => {
+              setEnrollingCourse(null);
+              handleCheckoutTrigger(amount, name);
+            }}
             currentUser={currentUser}
             onUserChanged={(user) => {
               setCurrentUser(user);

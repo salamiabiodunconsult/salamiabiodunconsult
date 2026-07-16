@@ -180,6 +180,7 @@ export interface Enrollment {
   durationDays?: number;
   hoursPerDay?: number;
   paymentStatus?: 'Paid' | 'Unpaid';
+  address?: string;
 }
 
 export interface Announcement {

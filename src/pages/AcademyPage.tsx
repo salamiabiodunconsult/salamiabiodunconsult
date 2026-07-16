@@ -12,7 +12,7 @@ import {
   CloudSun, Brain, TrendingUp, Volume2, RefreshCw, Lock, Unlock
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { getCourses, loginWithGoogleSimulated, enrollInCourse, isRealFirebase, signInWithGoogleReal } from '../firebase';
+import { getCourses, loginWithGoogleSimulated, enrollInCourse, isRealFirebase, signInWithGoogleReal, sendNotification } from '../firebase';
 import { Course, UserProfile, UserRole } from '../types';
 
 // Workspaces definition moved outside of the component for clean static reference
@@ -774,6 +774,8 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
   // Flagship Enrollment Flow States
   const [enrollingCourse, setEnrollingCourse] = useState<Course | null>(null);
   const [enrollMode, setEnrollMode] = useState<'Online' | 'Physical'>('Online');
+  const [enrollType, setEnrollType] = useState<'Trial' | 'Paid'>('Paid');
+  const [physicalAddress, setPhysicalAddress] = useState('');
   const [enrollDate, setEnrollDate] = useState('2026-07-20');
   const [enrollTime, setEnrollTime] = useState('11:00 AM');
   const [syncCalendar, setSyncCalendar] = useState(true);
@@ -1040,6 +1042,8 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
     setEnrollmentSuccess(false);
     setIsSubmittingEnrollment(false);
     setEnrollMode('Online');
+    setEnrollType('Paid');
+    setPhysicalAddress('');
     setEnrollDate('2026-07-20');
     setEnrollTime('11:00 AM');
     setCardName('');
@@ -1056,6 +1060,11 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
     }
     if (!enrollingCourse) return;
 
+    if (enrollMode === 'Physical' && !physicalAddress.trim()) {
+      showToast("Please enter your physical class address to continue.");
+      return;
+    }
+
     setIsSubmittingEnrollment(true);
 
     try {
@@ -1067,16 +1076,18 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
         }
       }
 
-      const finalPrice = enrollMode === 'Online' ? 25000 : 65000;
+      const finalPrice = enrollType === 'Trial' 
+        ? 50 
+        : (enrollMode === 'Online' ? 25000 : 65000);
 
       const handler = (window as any).PaystackPop.setup({
         key: 'pk_test_006be008193c9b83e671e6e1bb75e5aab3d9d589',
         email: currentUser.email,
         amount: Math.round(finalPrice * 100), // amount in kobo
         currency: 'NGN',
-        ref: 'SAC-ACAD-' + Date.now() + '-' + Math.floor(Math.random() * 100000),
+        ref: (enrollType === 'Trial' ? 'SAC-TRIAL-' : 'SAC-ACAD-') + Date.now() + '-' + Math.floor(Math.random() * 100000),
         callback: (response: any) => {
-          console.log("Paystack enrollment payment successful:", response);
+          console.log("Paystack transaction successful:", response);
           (async () => {
             try {
               const durationInfo = getCourseDurationDetails(enrollingCourse.id);
@@ -1091,12 +1102,32 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                 enrollTime,
                 durationInfo.days,
                 durationInfo.hoursPerDay,
-                'Paid'
+                enrollType === 'Trial' ? 'Trial' as any : 'Paid',
+                enrollMode === 'Physical' ? physicalAddress : undefined
               );
+
+              // Dashboard synchronization notification
+              await sendNotification(
+                currentUser.uid,
+                enrollType === 'Trial'
+                  ? `Free Trial Activated: You have started a 14-day free trial for "${enrollingCourse.title}" (${enrollMode} mode).`
+                  : `Tuition Payment Confirmed: You have successfully enrolled in "${enrollingCourse.title}" (${enrollMode} mode).`
+              );
+
+              if (enrollMode === 'Physical' && physicalAddress.trim()) {
+                await sendNotification(
+                  currentUser.uid,
+                  `Physical Address Registered: Lectures will be customized for your address: ${physicalAddress}.`
+                );
+              }
 
               setEnrollmentSuccess(true);
               setIsSubmittingEnrollment(false);
-              showToast(`Successfully enrolled in ${enrollingCourse.title}! Synchronized with your ${currentUser.role} dashboard.`);
+              showToast(
+                enrollType === 'Trial'
+                  ? `Successfully activated 14-day free trial for ${enrollingCourse.title}! Synchronized with your dashboard.`
+                  : `Successfully enrolled in ${enrollingCourse.title}! Synchronized with your dashboard.`
+              );
             } catch (err) {
               console.error("Enrollment failed:", err);
               showToast("Error during enrollment database sync after successful payment.");
@@ -1829,12 +1860,14 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
 
                       <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-600">
                         <div>
-                          <span className="block text-[8px] font-mono uppercase text-slate-400">Course Fee</span>
+                          <span className="block text-[8px] font-mono uppercase text-slate-400">Access Tier</span>
                           {course.level === 'Reception' ? (
-                            <span className="text-sm font-black text-emerald-600 font-mono">FREE</span>
+                            <span className="text-xs font-black text-emerald-600 font-mono bg-emerald-50 border border-emerald-150 px-2.5 py-0.5 rounded-full uppercase tracking-wide inline-block mt-0.5">
+                              FREE COHORT
+                            </span>
                           ) : (
-                            <span className="text-sm font-black text-slate-900">
-                              ₦{(course.price || 0).toLocaleString()}
+                            <span className="text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-150 px-2.5 py-0.5 rounded-full uppercase tracking-wide font-mono inline-block mt-0.5">
+                              PREMIUM
                             </span>
                           )}
                         </div>
@@ -3182,17 +3215,33 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                     <CheckCircle className="w-8 h-8" />
                   </div>
                   <div className="space-y-2">
-                    <h4 className="text-base font-bold text-white">Enrollment Completed</h4>
+                    <h4 className="text-base font-bold text-white">
+                      {enrollType === 'Trial' ? 'Free Trial Activated' : 'Enrollment Completed'}
+                    </h4>
                     <p className="text-[11px] text-slate-400 max-w-xs mx-auto leading-relaxed">
-                      Your tuition payment has been securely authorized and processed. Your credentials are now active!
+                      {enrollType === 'Trial' 
+                        ? 'Your 14-day free trial has been successfully registered and synced with your dashboard!'
+                        : 'Your tuition payment has been securely authorized and processed. Your credentials are now active!'}
                     </p>
                   </div>
 
                   <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-left text-[10.5px] space-y-2.5">
                     <div className="flex justify-between">
+                      <span className="text-slate-500">Enrollment Option:</span>
+                      <span className="font-semibold text-emerald-400">
+                        {enrollType === 'Trial' ? '14-Day Free Trial' : 'Full Tuition Enrollment'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
                       <span className="text-slate-500">Learning Mode:</span>
                       <span className="font-semibold text-slate-200">{enrollMode}</span>
                     </div>
+                    {enrollMode === 'Physical' && physicalAddress && (
+                      <div className="flex flex-col border-b border-slate-900 pb-2">
+                        <span className="text-slate-500">Physical Address:</span>
+                        <span className="font-semibold text-slate-300 mt-0.5 leading-normal">{physicalAddress}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <span className="text-slate-500">Scheduled Date:</span>
                       <span className="font-semibold text-slate-200">{enrollDate}</span>
@@ -3208,8 +3257,11 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                       </span>
                     </div>
                     <div className="flex justify-between border-t border-slate-900 pt-2 text-xs font-bold">
-                      <span className="text-slate-400">Standard Paid Price:</span>
-                      <span className="text-emerald-400">₦{(enrollMode === 'Online' ? 25000 : 65000).toLocaleString()}</span>
+                      <span className="text-slate-400">Amount Paid:</span>
+                      <span className="text-emerald-400">
+                        ₦{(enrollType === 'Trial' ? 50 : (enrollMode === 'Online' ? 25000 : 65000)).toLocaleString()}
+                        {enrollType === 'Trial' && ' (Refundable Card Check)'}
+                      </span>
                     </div>
                   </div>
 
@@ -3233,44 +3285,102 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                 </div>
               ) : (
                 /* Primary Interactive Wizard Form */
-                <form onSubmit={handleSubmitEnrollment} className="space-y-5 text-xs text-left">
-                  {/* Step 1: Learning Mode Selector */}
-                  <div className="space-y-2.5">
-                    <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono">1. Choose Learning Mode</label>
+                <form onSubmit={handleSubmitEnrollment} className="space-y-5 text-xs text-left text-slate-100">
+                  {/* Step 1: Select Enrollment Type */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono">1. Select Enrollment Option</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setEnrollType('Trial')}
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer bg-slate-950 ${
+                          enrollType === 'Trial'
+                            ? 'border-emerald-500 ring-2 ring-emerald-500/30 shadow-md'
+                            : 'border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        <span className="block font-bold text-xs text-white">14-Day Free Trial</span>
+                        <span className="block text-[9px] text-slate-400 mt-1 leading-normal">Full curriculum access. Refundable card validation check.</span>
+                        <span className="block text-emerald-400 font-black text-xs mt-2 font-mono">₦50 (Refundable)</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setEnrollType('Paid')}
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer bg-slate-950 ${
+                          enrollType === 'Paid'
+                            ? 'border-indigo-500 ring-2 ring-indigo-500/30 shadow-md'
+                            : 'border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        <span className="block font-bold text-xs text-white">Full Tuition Access</span>
+                        <span className="block text-[9px] text-slate-400 mt-1 leading-normal">Permanent credentials & final graduation certificates.</span>
+                        <span className="block text-indigo-400 font-black text-xs mt-2 font-mono">
+                          ₦{(enrollMode === 'Online' ? 25000 : 65000).toLocaleString()}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Step 2: Choose Learning Mode */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono">2. Choose Learning Mode</label>
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         type="button"
                         onClick={() => setEnrollMode('Online')}
-                        className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer bg-white ${
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer bg-slate-950 ${
                           enrollMode === 'Online'
-                            ? 'border-indigo-600 ring-2 ring-indigo-500/50 shadow-md'
-                            : 'border-slate-300 hover:border-slate-400'
+                            ? 'border-indigo-500 ring-2 ring-indigo-500/30 shadow-md'
+                            : 'border-slate-800 hover:border-slate-700'
                         }`}
                       >
-                        <span className={`block font-bold text-xs ${enrollMode === 'Online' ? 'text-indigo-950' : 'text-slate-800'}`}>Online Session</span>
-                        <span className="block text-[9px] text-slate-500 mt-1">Live webinars & cloud terminal tools.</span>
-                        <span className="block text-emerald-600 font-black text-xs mt-2">₦25,000</span>
+                        <span className="block font-bold text-xs text-white">Online Session</span>
+                        <span className="block text-[9px] text-slate-400 mt-1 leading-normal">Live webinars & cloud terminal tools.</span>
+                        <span className="block text-indigo-400 font-black text-xs mt-2 font-mono">
+                          {enrollType === 'Trial' ? '₦0 Extra' : '₦25,000'}
+                        </span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => setEnrollMode('Physical')}
-                        className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer bg-white ${
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer bg-slate-950 ${
                           enrollMode === 'Physical'
-                            ? 'border-indigo-600 ring-2 ring-indigo-500/50 shadow-md'
-                            : 'border-slate-300 hover:border-slate-400'
+                            ? 'border-indigo-500 ring-2 ring-indigo-500/30 shadow-md'
+                            : 'border-slate-800 hover:border-slate-700'
                         }`}
                       >
-                        <span className={`block font-bold text-xs ${enrollMode === 'Physical' ? 'text-indigo-950' : 'text-slate-800'}`}>Physical On-Site</span>
-                        <span className="block text-[9px] text-slate-500 mt-1">Hands-on lab at Salami Abiodun Consult.</span>
-                        <span className="block text-emerald-600 font-black text-xs mt-2">₦65,000</span>
+                        <span className="block font-bold text-xs text-white">Physical On-Site</span>
+                        <span className="block text-[9px] text-slate-400 mt-1 leading-normal">Hands-on lab at Salami Abiodun Consult.</span>
+                        <span className="block text-indigo-400 font-black text-xs mt-2 font-mono">
+                          {enrollType === 'Trial' ? '₦0 Extra' : '₦65,000'}
+                        </span>
                       </button>
                     </div>
+
+                    {/* Physical Class Address Capture */}
+                    {enrollMode === 'Physical' && (
+                      <div className="mt-3.5 space-y-1.5 animate-fade-in bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                        <label className="block text-[10px] text-slate-300 font-bold uppercase tracking-wider font-mono">
+                          Physical Class Address <span className="text-red-400">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={physicalAddress}
+                          onChange={(e) => setPhysicalAddress(e.target.value)}
+                          placeholder="e.g. 12 Herbert Macaulay Way, Yaba, Lagos, Nigeria"
+                          className="w-full bg-slate-900 text-white border border-slate-800 rounded-xl px-3 py-2.5 text-xs placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+                        />
+                        <p className="text-[9px] text-slate-500 leading-normal">Your home or office address is required for coordination and physical classroom operations.</p>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Step 2: Scheduling Preferences */}
+                  {/* Step 3: Scheduling Preferences */}
                   <div className="space-y-2.5 pt-1">
-                    <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono">2. Schedule Class Meetings</label>
+                    <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono">3. Schedule Class Meetings</label>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1">
@@ -3278,7 +3388,7 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                         <select
                           value={enrollDate}
                           onChange={(e) => setEnrollDate(e.target.value)}
-                          className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl p-2.5 focus:outline-none focus:border-indigo-500 font-medium"
+                          className="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-xl p-2.5 focus:outline-none focus:border-indigo-500 font-medium cursor-pointer"
                         >
                           <option value="2026-07-20">Mon, Jul 20, 2026</option>
                           <option value="2026-07-21">Tue, Jul 21, 2026</option>
@@ -3293,7 +3403,7 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                         <select
                           value={enrollTime}
                           onChange={(e) => setEnrollTime(e.target.value)}
-                          className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl p-2.5 focus:outline-none focus:border-indigo-500 font-medium"
+                          className="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-xl p-2.5 focus:outline-none focus:border-indigo-500 font-medium cursor-pointer"
                         >
                           <option value="09:00 AM">09:00 AM - 11:00 AM (Morning)</option>
                           <option value="11:30 AM">11:30 AM - 01:30 PM (Midday)</option>
@@ -3308,38 +3418,55 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                         type="checkbox"
                         checked={syncCalendar}
                         onChange={(e) => setSyncCalendar(e.target.checked)}
-                        className="rounded border-slate-300 text-indigo-600 focus:ring-0 focus:ring-offset-0 bg-white"
+                        className="rounded border-slate-800 text-indigo-600 focus:ring-0 focus:ring-offset-0 bg-slate-950"
                       />
                       <span className="text-[10px] text-slate-400">Sync with Google Calendar and SAC academic schedules</span>
                     </label>
                   </div>
 
-                  {/* Step 3: Secure Paystack Integration */}
+                  {/* Step 4: Secure Paystack Integration */}
                   <div className="space-y-2.5 pt-1 border-t border-slate-800/60">
-                    <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono">3. Secure Paystack Payment</label>
+                    <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono">4. Secure Paystack Payment</label>
                     
-                    <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-200 space-y-3.5">
-                      <div className="flex justify-between items-center text-xs font-bold border-b border-slate-200 pb-2.5">
-                        <span className="text-slate-600 font-mono">Order Total:</span>
-                        <span className="text-emerald-600 text-sm">₦{(enrollMode === 'Online' ? 25000 : 65000).toLocaleString()}</span>
+                    <div className="bg-slate-950 p-4.5 rounded-2xl border border-slate-800 space-y-3.5">
+                      <div className="flex justify-between items-center text-xs font-bold border-b border-slate-800 pb-2.5">
+                        <span className="text-slate-400 font-mono">Order Total:</span>
+                        <span className="text-emerald-400 text-sm font-mono">
+                          ₦{(enrollType === 'Trial' ? 50 : (enrollMode === 'Online' ? 25000 : 65000)).toLocaleString()}
+                        </span>
                       </div>
 
-                      <div className="text-slate-500 text-[10.5px] leading-relaxed space-y-2">
+                      <div className="text-slate-400 text-[10.5px] leading-relaxed space-y-2">
+                        {enrollType === 'Trial' ? (
+                          <>
+                            <p className="flex items-start gap-1.5">
+                              <span className="text-emerald-400 font-bold font-mono">✓</span>
+                              <span>Refundable ₦50 pre-authorization to verify genuine cards.</span>
+                            </p>
+                            <p className="flex items-start gap-1.5">
+                              <span className="text-emerald-400 font-bold font-mono">✓</span>
+                              <span>Unlocks full career syllabus for 14 calendar days.</span>
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="flex items-start gap-1.5">
+                              <span className="text-emerald-400 font-bold font-mono">✓</span>
+                              <span>Official transaction gateway secure payment.</span>
+                            </p>
+                            <p className="flex items-start gap-1.5">
+                              <span className="text-emerald-400 font-bold font-mono">✓</span>
+                              <span>Authorized via verified Paystack pop-up checkout engine.</span>
+                            </p>
+                          </>
+                        )}
                         <p className="flex items-start gap-1.5">
-                          <span className="text-emerald-500 font-bold font-mono">✓</span>
-                          <span>Official transaction gateway secure payment.</span>
-                        </p>
-                        <p className="flex items-start gap-1.5">
-                          <span className="text-emerald-500 font-bold font-mono">✓</span>
-                          <span>Authorized via verified Paystack pop-up checkout engine.</span>
-                        </p>
-                        <p className="flex items-start gap-1.5">
-                          <span className="text-emerald-500 font-bold font-mono">✓</span>
+                          <span className="text-emerald-400 font-bold font-mono">✓</span>
                           <span>We do not store or process card details on Salami Abiodun Consult.</span>
                         </p>
                       </div>
 
-                      <div className="text-[9px] bg-slate-200/50 p-2.5 rounded-xl border border-slate-300 text-slate-600 text-center font-medium font-mono truncate">
+                      <div className="text-[9px] bg-slate-900 p-2.5 rounded-xl border border-slate-800 text-slate-500 text-center font-medium font-mono truncate">
                         Key: pk_test_006be008193c9b83e671e6e1bb75e5aab3d9d589
                       </div>
                     </div>
@@ -3348,7 +3475,7 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                   <button
                     type="submit"
                     disabled={isSubmittingEnrollment}
-                    className="w-full py-3.5 bg-white hover:bg-slate-50 disabled:bg-slate-100 border border-slate-300 text-slate-950 font-black rounded-xl text-xs transition-all shadow-md active:scale-98 flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-3.5 bg-white hover:bg-slate-100 disabled:bg-slate-800 text-slate-950 font-black rounded-xl text-xs transition-all shadow-md active:scale-98 flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     {isSubmittingEnrollment ? (
                       <>
@@ -3356,7 +3483,11 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                       </>
                     ) : (
                       <>
-                        <CreditCard className="w-3.5 h-3.5" /> Pay with Paystack ₦{(enrollMode === 'Online' ? 25000 : 65000).toLocaleString()}
+                        <CreditCard className="w-3.5 h-3.5" /> 
+                        {enrollType === 'Trial' 
+                          ? 'Start Free Trial with Paystack ₦50'
+                          : `Pay Tuition with Paystack ₦${(enrollMode === 'Online' ? 25000 : 65000).toLocaleString()}`
+                        }
                       </>
                     )}
                   </button>

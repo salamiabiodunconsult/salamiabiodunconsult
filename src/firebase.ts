@@ -1266,7 +1266,8 @@ export const enrollInCourse = async (
   scheduleTime?: string,
   durationDays?: number,
   hoursPerDay?: number,
-  paymentStatus?: 'Paid' | 'Unpaid'
+  paymentStatus?: 'Paid' | 'Unpaid',
+  address?: string
 ): Promise<Enrollment> => {
   const newEnrollment: Enrollment = {
     id: `enroll-${studentId}-${courseId}`,
@@ -1283,7 +1284,8 @@ export const enrollInCourse = async (
     scheduleTime,
     durationDays,
     hoursPerDay,
-    paymentStatus
+    paymentStatus,
+    address
   };
 
   if (isRealFirebase) {

@@ -720,13 +720,13 @@ CRITICAL CONSTRAINT: If any of the user answers are empty, extremely vague, or u
           <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 20px; background-color: #ffffff; color: #334155; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);">
             <div style="text-align: center; margin-bottom: 30px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px;">
               <h1 style="color: #0f172a; font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">Salami Abiodun Consult</h1>
-              <p style="color: #10b981; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin: 6px 0 0 0;">Newsletter & Insights Hub</p>
+              <p style="color: #10b981; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin: 6px 0 0 0;">Technical Adventure Hub</p>
             </div>
             
             <div style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 16px; padding: 24px; margin-bottom: 28px;">
-              <h2 style="color: #0f172a; font-size: 18px; font-weight: 700; margin-top: 0; margin-bottom: 14px; text-align: center;">New Newsletter Subscriber! 🚀</h2>
+              <h2 style="color: #0f172a; font-size: 18px; font-weight: 700; margin-top: 0; margin-bottom: 14px; text-align: center;">New Technical Adventure Registrant! 🚀</h2>
               <p style="font-size: 14px; line-height: 1.6; color: #475569; text-align: center; margin-bottom: 20px;">
-                An individual has requested to receive regular SAC insights, digital marketing strategies, and system updates.
+                An individual has registered to start their Technical Adventure with SAC Tech Academy.
               </p>
               
               ${firstName ? `
@@ -737,14 +737,14 @@ CRITICAL CONSTRAINT: If any of the user answers are empty, extremely vague, or u
               ` : ''}
 
               <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; text-align: center;">
-                <span style="display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 700; margin-bottom: 2px;">Subscriber Email</span>
+                <span style="display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 700; margin-bottom: 2px;">Registrant Email</span>
                 <strong style="font-size: 16px; color: #10b981; word-break: break-all;">${email}</strong>
               </div>
             </div>
 
             <div style="text-align: center; margin-bottom: 24px;">
               <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">
-                This subscriber has been saved to your Firestore database. You can manage your contacts via your admin dashboard or sync them to your newsletter service.
+                This registrant has been saved to your Firestore database. You can manage your contacts via your admin dashboard or sync them to your learning management service.
               </p>
             </div>
 
@@ -758,7 +758,7 @@ CRITICAL CONSTRAINT: If any of the user answers are empty, extremely vague, or u
         const mailResult = await transporter.sendMail({
           from: `"Salami Abiodun Consult Insights" <${fromEmail}>`,
           to: 'info.salamiabiodunconsult@gmail.com',
-          subject: `New SAC Insights Subscriber: ${firstName ? `${firstName} (${email})` : email}`,
+          subject: `New SAC Tech Adventure Registrant: ${firstName ? `${firstName} (${email})` : email}`,
           html: htmlTemplate
         });
 

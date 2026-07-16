@@ -137,11 +137,12 @@ export default function Footer({ onNavigate, onOpenAdminLogin }: FooterProps) {
 
         {/* Newsletter column */}
         <div className="space-y-4">
-          <h4 className="text-xs font-bold text-slate-900 tracking-wider uppercase">Insights Desk</h4>
+          <h4 className="text-xs font-bold text-slate-900 tracking-wider uppercase">Technical Adventure</h4>
           <form onSubmit={handleSubscribe} className="space-y-3">
             {step === 1 ? (
               <>
-                <p className="text-[11px] text-slate-500">Subscribe to SAC insights (Step 1 of 2):</p>
+                <p className="text-[11px] text-slate-500 font-medium">Ready to Start Your Technical Adventure? (Step 1 of 2):</p>
+                <p className="text-[10px] text-slate-400 leading-normal">Enter your email to receive free sandbox codes, specialized curriculum updates, and custom learning roadmaps!</p>
                 <div className="flex gap-1.5">
                   <input
                     type="email"
@@ -162,8 +163,8 @@ export default function Footer({ onNavigate, onOpenAdminLogin }: FooterProps) {
               </>
             ) : (
               <>
-                <p className="text-[11px] text-slate-500 flex justify-between items-center">
-                  <span>Subscribe to SAC insights (Step 2 of 2):</span>
+                <p className="text-[11px] text-slate-500 flex justify-between items-center font-medium">
+                  <span>Ready to Start Your Technical Adventure? (Step 2 of 2):</span>
                   <button 
                     type="button" 
                     onClick={() => setStep(1)} 
