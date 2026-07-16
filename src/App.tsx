@@ -11,7 +11,7 @@ import WhatsAppWidget from './components/WhatsAppWidget';
 import { 
   CompleteProfileModal, BookAppointmentModal, BrandAuditModal, 
   ManageStudentModal, CertificateModal, PremiumPurchaseModal,
-  MergedAuditStrategyModal
+  MergedAuditStrategyModal, AppointmentThankYouModal, FreeTrialModal
 } from './components/Modals';
 import HomePage from './pages/HomePage';
 import CoursesPage from './pages/CoursesPage';
@@ -20,13 +20,15 @@ import MarketplacePage from './pages/MarketplacePage';
 import CommunityPage from './pages/CommunityPage';
 import DashboardPage from './pages/DashboardPage';
 import PRPage from './pages/PRPage';
-import DeveloperInfoPage from './pages/DeveloperInfoPage';
 import AcademyPage from './pages/AcademyPage';
 import PortfolioPage from './pages/PortfolioPage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
+import SitemapPage from './pages/SitemapPage';
 import { UserProfile, Course, Appointment, BrandAudit } from './types';
 import { 
   getAppointments, getBrandAudits, bookAppointment, saveBrandAudit, 
-  loginWithGoogleSimulated, getCourses, getCurrentUserSync
+  updateProfileFields, saveProfile, getCourses, getCurrentUserSync, onAuthUserProfileChanged
 } from './firebase';
 import { Bell, Sparkles, Check, CheckCircle2, ShieldAlert } from 'lucide-react';
 
@@ -38,7 +40,7 @@ export default function App() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [audits, setAudits] = useState<BrandAudit[]>([]);
   const [notifications, setNotifications] = useState<Array<{ id: string; text: string; read: boolean }>>([
-    { id: 'n-welcome', text: "Welcome to SAC Portal! Click 'Access Workspace' in the top header to simulate different roles.", read: false }
+    { id: 'n-welcome', text: "Welcome to Salami Abiodun Consult! Access your personal client dashboard or academy workspace by logging in.", read: false }
   ]);
 
   // Toast Notifications
@@ -50,6 +52,15 @@ export default function App() {
   const [isMergedFlowOpen, setIsMergedFlowOpen] = useState(false);
   const [isManageStudentOpen, setIsManageStudentOpen] = useState(false);
   const [manageStudentMode, setManageStudentMode] = useState<'Add' | 'Enroll' | 'Assign'>('Add');
+
+  // Appointment Thank You feedback state
+  const [thankYouAppt, setThankYouAppt] = useState<Appointment | null>(null);
+  const [isThankYouOpen, setIsThankYouOpen] = useState(false);
+
+  // Shared app-controlled auth modal states
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authTab, setAuthTab] = useState<'signin' | 'signup'>('signin');
+  const [isAdminAuth, setIsAdminAuth] = useState(false);
   
   // Paystack checkout modal trigger
   const [isPaystackOpen, setIsPaystackOpen] = useState(false);
@@ -61,7 +72,11 @@ export default function App() {
   const [certStudentName, setCertStudentName] = useState('');
   const [certCourseTitle, setCertCourseTitle] = useState('');
 
-  // Load database items on startup
+  // Free trial registration states
+  const [isFreeTrialOpen, setIsFreeTrialOpen] = useState(false);
+  const [trialInitialEmail, setTrialInitialEmail] = useState('');
+
+  // Load database items whenever current user changes (sign in, sign out, or role changes)
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -78,13 +93,30 @@ export default function App() {
       }
     };
     loadData();
-    
+  }, [currentUser]);
+
+  // Handle persistent user auth state on mount
+  useEffect(() => {
     // Load previously logged-in user if exists, or start as logged out (null)
     const storedUser = getCurrentUserSync();
     if (storedUser) {
       setCurrentUser(storedUser);
     }
+
+    // Subscribe to real Firebase Auth changes
+    const unsubscribe = onAuthUserProfileChanged((profile) => {
+      setCurrentUser(profile);
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
+
+  // Scroll to top on active page transition
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activePage]);
 
   // Helper to trigger a temporary popup notification toast
   const triggerToast = (text: string) => {
@@ -104,10 +136,17 @@ export default function App() {
   };
 
   // Profile Save handler
-  const handleSaveProfileFields = (fields: Partial<UserProfile>) => {
+  const handleSaveProfileFields = async (fields: Partial<UserProfile>) => {
     if (currentUser) {
-      setCurrentUser(prev => prev ? { ...prev, ...fields } : null);
-      triggerToast(`Account profile for ${fields.displayName || 'user'} completed successfully!`);
+      const updatedProfile = { ...currentUser, ...fields };
+      setCurrentUser(updatedProfile);
+      try {
+        await saveProfile(updatedProfile);
+        triggerToast(`Account profile for ${fields.displayName || 'user'} completed successfully!`);
+      } catch (err: any) {
+        console.error('Error saving profile:', err);
+        triggerToast(`Failed to save profile: ${err.message || err}`);
+      }
     }
   };
 
@@ -155,6 +194,8 @@ export default function App() {
     });
     setAppointments(prev => [appt, ...prev]);
 
+    setThankYouAppt(appt);
+    setIsThankYouOpen(true);
     triggerToast(`Success! SEO metrics compiled (${audit.scores?.seo || 85}%) & strategy meeting booked!`);
     setActivePage('dashboard');
   };
@@ -170,6 +211,8 @@ export default function App() {
     });
 
     setAppointments(prev => [appt, ...prev]);
+    setThankYouAppt(appt);
+    setIsThankYouOpen(true);
     triggerToast(`Appointment booked! Google Meet link created: ${appt.meetLink}`);
     setActivePage('dashboard');
   };
@@ -219,7 +262,37 @@ export default function App() {
         }}
         notifications={notifications}
         onMarkNotificationsRead={markAllNotificationsRead}
+        isAuthModalOpen={isAuthOpen}
+        setIsAuthModalOpen={setIsAuthOpen}
+        authTab={authTab}
+        setAuthTab={setAuthTab}
+        isAdminAuth={isAdminAuth}
+        setIsAdminAuth={setIsAdminAuth}
       />
+
+      {/* ACTIVE SESSION WORKSPACE LINK BANNER */}
+      {currentUser && activePage !== 'dashboard' && (
+        <div className="bg-emerald-950/40 border-b border-emerald-500/20 py-2.5 px-4 animate-fade-in">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-slate-200">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span>
+                Logged in as <strong className="text-emerald-400">{currentUser.displayName || currentUser.email}</strong> ({currentUser.role}).
+              </span>
+            </div>
+            <button
+              onClick={() => setActivePage('dashboard')}
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer text-[11px]"
+            >
+              <span>Access Dashboard</span>
+              <span className="font-mono">→</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* FLOATING TOAST NOTIFICATION IF ACTIVE */}
       {toastMessage && (
@@ -242,6 +315,7 @@ export default function App() {
             onOpenAuditModal={() => setIsAuditOpen(true)}
             onOpenApptModal={() => setIsApptOpen(true)}
             onOpenMergedModal={() => setIsMergedFlowOpen(true)}
+            onOpenAuthModal={() => setIsAuthOpen(true)}
           />
         )}
         
@@ -272,11 +346,24 @@ export default function App() {
           <PRPage />
         )}
 
+        {activePage === 'privacy' && (
+          <PrivacyPage />
+        )}
+
+        {activePage === 'terms' && (
+          <TermsPage />
+        )}
+
+        {activePage === 'sitemap' && (
+          <SitemapPage onNavigate={(page) => setActivePage(page)} />
+        )}
+
         {activePage === 'portfolio' && (
           <PortfolioPage 
             onNavigate={(page) => setActivePage(page)}
             onOpenAuditModal={() => setIsAuditOpen(true)}
             onOpenApptModal={() => setIsApptOpen(true)}
+            onOpenMergedModal={() => setIsMergedFlowOpen(true)}
           />
         )}
 
@@ -294,11 +381,15 @@ export default function App() {
               }
             }}
             onNavigate={(page) => setActivePage(page)}
+            onOpenFreeTrialModal={(initialEmailStr) => {
+              setTrialInitialEmail(initialEmailStr || '');
+              setIsFreeTrialOpen(true);
+            }}
+            onOpenAuthModal={() => {
+              setAuthTab('signin');
+              setIsAuthOpen(true);
+            }}
           />
-        )}
-
-        {activePage === 'devinfo' && (
-          <DeveloperInfoPage />
         )}
 
         {activePage === 'dashboard' && currentUser && (
@@ -321,7 +412,14 @@ export default function App() {
       </main>
 
       {/* FOOTER SECTION */}
-      <Footer onNavigate={(page) => setActivePage(page)} />
+      <Footer 
+        onNavigate={(page) => setActivePage(page)} 
+        onOpenAdminLogin={() => {
+          setIsAdminAuth(true);
+          setAuthTab('signin');
+          setIsAuthOpen(true);
+        }}
+      />
 
       {/* FLOATING WIDGETS CO-ORDINATOR */}
       {activePage === 'academy' && (
@@ -362,6 +460,7 @@ export default function App() {
         onSubmit={handleMergedAuditStrategy}
         clientEmail={currentUser?.email}
         clientName={currentUser?.displayName}
+        onUserSignedIn={setCurrentUser}
       />
 
       <ManageStudentModal
@@ -384,7 +483,34 @@ export default function App() {
         onClose={() => setIsPaystackOpen(false)}
         amount={payAmount}
         planName={payPlanName}
+        currentUserEmail={currentUser?.email || ''}
         onPaymentSuccess={handlePaymentSuccess}
+      />
+
+      <AppointmentThankYouModal
+        isOpen={isThankYouOpen}
+        onClose={() => setIsThankYouOpen(false)}
+        apptDetails={thankYouAppt}
+        onSignUpTrigger={() => {
+          setAuthTab('signup');
+          setIsAuthOpen(true);
+        }}
+        isUserSignedIn={!!currentUser}
+      />
+
+      <FreeTrialModal
+        isOpen={isFreeTrialOpen}
+        onClose={() => setIsFreeTrialOpen(false)}
+        currentUser={currentUser}
+        onUserChanged={(user) => {
+          setCurrentUser(user);
+          if (user) {
+            triggerToast(`Logged into simulated ${user.role} workspace.`);
+          } else {
+            triggerToast('Signed out of SAC Portal.');
+          }
+        }}
+        initialEmail={trialInitialEmail}
       />
 
     </div>

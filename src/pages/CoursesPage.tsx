@@ -15,7 +15,7 @@ interface CoursesPageProps {
 export default function CoursesPage({ onEnroll }: CoursesPageProps) {
   const courses = getCourses();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState<'All' | 'Beginner' | 'Intermediate' | 'Advanced'>('All');
+  const [selectedLevel, setSelectedLevel] = useState<'All' | 'Beginner' | 'Intermediate' | 'Advanced' | 'Reception'>('All');
   const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
 
   const filteredCourses = courses.filter(c => {
@@ -47,13 +47,13 @@ export default function CoursesPage({ onEnroll }: CoursesPageProps) {
             placeholder="Search courses..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-400 text-white"
+            className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-400 text-slate-900 placeholder-slate-400"
           />
         </div>
 
         {/* Categories */}
         <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
-          {(['All', 'Beginner', 'Intermediate', 'Advanced'] as const).map(lvl => (
+          {(['All', 'Beginner', 'Intermediate', 'Advanced', 'Reception'] as const).map(lvl => (
             <button
               key={lvl}
               onClick={() => setSelectedLevel(lvl)}
@@ -63,7 +63,7 @@ export default function CoursesPage({ onEnroll }: CoursesPageProps) {
                   : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-white'
               }`}
             >
-              {lvl}
+              {lvl === 'Reception' ? 'Reception (Free)' : lvl}
             </button>
           ))}
         </div>
@@ -79,6 +79,7 @@ export default function CoursesPage({ onEnroll }: CoursesPageProps) {
         ) : (
           filteredCourses.map(course => {
             const isExpanded = expandedCourseId === course.id;
+            const isFree = course.price === 0 || course.level === 'Reception';
             return (
               <div 
                 key={course.id}
@@ -89,7 +90,7 @@ export default function CoursesPage({ onEnroll }: CoursesPageProps) {
                   {/* Badge Row */}
                   <div className="flex items-center justify-between text-[10px] font-mono">
                     <span className="bg-slate-950 text-emerald-400 border border-emerald-400/20 px-2 py-0.5 rounded uppercase">
-                      {course.level}
+                      {course.level === 'Reception' ? 'Reception (Free)' : course.level}
                     </span>
                     <span className="text-slate-400 flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5" /> {course.duration}
@@ -125,15 +126,15 @@ export default function CoursesPage({ onEnroll }: CoursesPageProps) {
                 <div className="mt-6 pt-4 border-t border-slate-800/60 flex items-center justify-between">
                   <div>
                     <span className="block text-[9px] font-mono uppercase text-slate-500">Course Fee</span>
-                    <span className="text-sm font-black text-white">
-                      ₦{(course.price || 0).toLocaleString()}
+                    <span className={`text-sm font-black ${isFree ? 'text-emerald-400' : 'text-white'}`}>
+                      {isFree ? 'FREE' : `₦${course.price.toLocaleString()}`}
                     </span>
                   </div>
                   <button
                     onClick={() => onEnroll(course)}
                     className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs cursor-pointer transition-colors flex items-center gap-1"
                   >
-                    <CreditCard className="w-3.5 h-3.5" /> Enroll Now
+                    <CreditCard className="w-3.5 h-3.5" /> {isFree ? 'Launch Sandbox' : 'Enroll Now'}
                   </button>
                 </div>
 

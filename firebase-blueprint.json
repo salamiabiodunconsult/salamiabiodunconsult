@@ -75,6 +75,19 @@
         "status": { "type": "string" }
       },
       "required": ["id", "clientEmail", "clientName", "dateTime", "status"]
+    },
+    "subscriber": {
+      "title": "Subscriber",
+      "description": "Newsletter subscriber for SAC insights",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "firstName": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "email", "createdAt"]
     }
   },
   "firestore": {
@@ -97,6 +110,10 @@
     "/appointments/{appointmentId}": {
       "schema": "appointment",
       "description": "Google Calendar and Meet brand appointments"
+    },
+    "/subscribers/{subscriberId}": {
+      "schema": "subscriber",
+      "description": "Newsletter subscribers for SAC insights"
     }
   }
 }

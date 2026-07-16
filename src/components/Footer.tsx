@@ -4,149 +4,221 @@
  */
 
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, HelpCircle, Linkedin, Twitter, Globe } from 'lucide-react';
+import { 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Send, 
+  HelpCircle, 
+  Linkedin, 
+  Twitter, 
+  Globe,
+  Instagram,
+  Facebook,
+  MessageCircle,
+  Youtube,
+  Store,
+  Video,
+  ArrowRight
+} from 'lucide-react';
 import Logo from './Logo';
+import { subscribeToNewsletter } from '../firebase';
 
 interface FooterProps {
   onNavigate: (page: string) => void;
+  onOpenAdminLogin?: () => void;
 }
 
-export default function Footer({ onNavigate }: FooterProps) {
+export default function Footer({ onNavigate, onOpenAdminLogin }: FooterProps) {
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [etherealUrl, setEtherealUrl] = useState<string | null>(null);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
-      setSubscribed(true);
-      setEmail('');
-      setTimeout(() => setSubscribed(false), 3000);
+    if (step === 1) {
+      if (email.trim() && email.includes('@')) {
+        setStep(2);
+      }
+      return;
+    }
+
+    if (!email.trim() || !firstName.trim() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    setEtherealUrl(null);
+    try {
+      const res = await subscribeToNewsletter(email.trim(), firstName.trim());
+      if (res.success) {
+        setSubscribed(true);
+        if (res.etherealUrl) {
+          setEtherealUrl(res.etherealUrl);
+        }
+        setEmail('');
+        setFirstName('');
+        setStep(1);
+        setTimeout(() => {
+          setSubscribed(false);
+        }, 5000);
+      }
+    } catch (err) {
+      console.error('Subscription error:', err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <footer className="bg-slate-950 text-slate-400 border-t border-slate-900 py-12 px-4 sm:px-6 lg:px-8 mt-auto">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-slate-50 text-slate-600 border-t border-slate-200 py-12 px-4 sm:px-6 lg:px-8 mt-auto">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* About column */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Logo size="sm" />
-            <span className="font-extrabold text-white text-sm tracking-tight">SAC Ecosystem</span>
+            <span className="font-extrabold text-slate-950 text-sm tracking-tight">SAC Ecosystem</span>
           </div>
-          <p className="text-xs leading-relaxed text-slate-400">
-            A comprehensive consultancy integrating highly specialized digital marketing services with an industry-grade EdTech learning hub, Resource Vault templates, and gamified multi-role portals.
+          <p className="text-xs leading-relaxed text-slate-500">
+            A consultancy integrating highly specialized digital marketing services with an industry-grade Tech learning hub.
           </p>
-          <div className="flex gap-3 text-slate-500 text-xs">
-            <a href="#" className="hover:text-emerald-400 transition-colors"><Twitter className="w-4 h-4" /></a>
-            <a href="#" className="hover:text-emerald-400 transition-colors"><Linkedin className="w-4 h-4" /></a>
-            <a href="#" className="hover:text-emerald-400 transition-colors"><Globe className="w-4 h-4" /></a>
+          <div className="flex flex-wrap gap-3 text-slate-400 text-xs">
+            <a href="https://instagram.com/Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="Instagram" className="hover:text-emerald-600 transition-colors">
+              <Instagram className="w-4 h-4" />
+            </a>
+            <a href="https://facebook.com/Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="Facebook" className="hover:text-emerald-600 transition-colors">
+              <Facebook className="w-4 h-4" />
+            </a>
+            <a href="https://wa.me/2348154224426" target="_blank" rel="noopener noreferrer" title="WhatsApp" className="hover:text-emerald-600 transition-colors">
+              <MessageCircle className="w-4 h-4" />
+            </a>
+            <a href="https://tiktok.com/@Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="TikTok" className="hover:text-emerald-600 transition-colors">
+              <Video className="w-4 h-4" />
+            </a>
+            <a href="https://twitter.com/Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="Twitter / X" className="hover:text-emerald-600 transition-colors">
+              <Twitter className="w-4 h-4" />
+            </a>
+            <a href="https://linkedin.com/in/Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="LinkedIn" className="hover:text-emerald-600 transition-colors">
+              <Linkedin className="w-4 h-4" />
+            </a>
+            <a href="https://g.page/Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="Google Business Profile" className="hover:text-emerald-600 transition-colors">
+              <Store className="w-4 h-4" />
+            </a>
+            <a href="https://youtube.com/@Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="YouTube" className="hover:text-emerald-600 transition-colors">
+              <Youtube className="w-4 h-4" />
+            </a>
           </div>
         </div>
 
-        {/* Sectors Column */}
-        <div>
-          <h4 className="text-sm font-semibold text-emerald-400 mb-4 tracking-wider uppercase">Our Pillars</h4>
-          <ul className="space-y-2.5 text-xs">
-            <li>
-              <button onClick={() => onNavigate('home')} className="hover:text-white transition-colors cursor-pointer text-left">
-                SAC Advertising Agency
-              </button>
-            </li>
-            <li>
-              <button onClick={() => onNavigate('courses')} className="hover:text-white transition-colors cursor-pointer text-left">
-                Academy Learning Hub
-              </button>
-            </li>
-            <li>
-              <button onClick={() => onNavigate('marketplace')} className="hover:text-white transition-colors cursor-pointer text-left">
-                Resource Vault (Products)
-              </button>
-            </li>
-            <li>
-              <button onClick={() => onNavigate('community')} className="hover:text-white transition-colors cursor-pointer text-left">
-                Mentorship Programs
-              </button>
-            </li>
-          </ul>
-        </div>
-
-        {/* Support & Public Info */}
-        <div>
-          <h4 className="text-sm font-semibold text-emerald-400 mb-4 tracking-wider uppercase">Resources</h4>
-          <ul className="space-y-2.5 text-xs">
-            <li>
-              <button onClick={() => onNavigate('pricing')} className="hover:text-white transition-colors cursor-pointer text-left">
-                Membership Plans & Pricing
-              </button>
-            </li>
-            <li>
-              <button onClick={() => onNavigate('pr')} className="hover:text-white transition-colors cursor-pointer text-left">
-                Press Releases & News
-              </button>
-            </li>
-            <li>
-              <button onClick={() => onNavigate('devinfo')} className="hover:text-white transition-colors cursor-pointer text-left">
-                Developer Specifications
-              </button>
-            </li>
-            <li>
-              <a href="mailto:info.salamiabiodunconsult@gmail.com" className="hover:text-white transition-colors flex items-center gap-1">
-                <HelpCircle className="w-3.5 h-3.5" /> SAC Help Desk
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        {/* Contact & Newsletter */}
+        {/* Contact column */}
         <div className="space-y-4">
-          <h4 className="text-sm font-semibold text-emerald-400 mb-4 tracking-wider uppercase">Get In Touch</h4>
-          <div className="space-y-2 text-xs text-slate-400">
-            <p className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
+          <h4 className="text-xs font-bold text-slate-900 tracking-wider uppercase">Get In Touch</h4>
+          <div className="space-y-3 text-xs text-slate-600">
+            <p className="flex items-start gap-2">
+              <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
               <span>Salami Abiodun Consult Head Office, Nigeria</span>
             </p>
             <p className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
-              <a href="mailto:info.salamiabiodunconsult@gmail.com" className="hover:text-white transition-colors truncate">
+              <Mail className="w-4 h-4 text-emerald-600 shrink-0" />
+              <a href="mailto:info.salamiabiodunconsult@gmail.com" className="hover:text-slate-900 transition-colors truncate">
                 info.salamiabiodunconsult@gmail.com
               </a>
             </p>
             <p className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>+234 801 111 2222</span>
+              <Phone className="w-4 h-4 text-emerald-600 shrink-0" />
+              <a href="tel:+2348154224426" className="hover:text-slate-900 transition-colors">
+                +234 815 422 4426
+              </a>
             </p>
           </div>
+        </div>
 
-          <form onSubmit={handleSubscribe} className="pt-2">
-            <p className="text-[10px] text-gray-500 mb-1.5">Subscribe to SAC insights:</p>
-            <div className="flex gap-1.5">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="email@domain.com"
-                className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-[11px] text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 flex-1 min-w-0"
-              />
-              <button
-                type="submit"
-                className="bg-emerald-500 text-slate-950 px-2.5 py-1.5 rounded-lg hover:bg-emerald-400 transition-colors cursor-pointer flex items-center justify-center shrink-0"
-              >
-                {subscribed ? 'Joined!' : <Send className="w-3.5 h-3.5" />}
-              </button>
-            </div>
+        {/* Newsletter column */}
+        <div className="space-y-4">
+          <h4 className="text-xs font-bold text-slate-900 tracking-wider uppercase">Insights Desk</h4>
+          <form onSubmit={handleSubscribe} className="space-y-3">
+            {step === 1 ? (
+              <>
+                <p className="text-[11px] text-slate-500">Subscribe to SAC insights (Step 1 of 2):</p>
+                <div className="flex gap-1.5">
+                  <input
+                    type="email"
+                    required
+                    disabled={isSubmitting}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="email@domain.com"
+                    className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-[11px] text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 flex-1 min-w-0 disabled:opacity-60 shadow-xs"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-white text-slate-950 border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer flex items-center justify-center shrink-0 shadow-xs"
+                  >
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-[11px] text-slate-500 flex justify-between items-center">
+                  <span>Subscribe to SAC insights (Step 2 of 2):</span>
+                  <button 
+                    type="button" 
+                    onClick={() => setStep(1)} 
+                    className="text-emerald-600 hover:underline text-[9px] cursor-pointer font-semibold"
+                  >
+                    Back
+                  </button>
+                </p>
+                <div className="flex gap-1.5">
+                  <input
+                    type="text"
+                    required
+                    disabled={isSubmitting}
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="First name"
+                    className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-[11px] text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 flex-1 min-w-0 disabled:opacity-60 shadow-xs"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-white text-slate-950 border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-60 shadow-xs"
+                  >
+                    {subscribed ? 'Joined!' : isSubmitting ? '...' : <Send className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </>
+            )}
+            {etherealUrl && (
+              <div className="mt-2 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-[10px] text-emerald-800 leading-relaxed">
+                🎉 <strong>Subscription Registered!</strong> Since custom SMTP is not set up, you can click below to preview the admin dispatch notification sent to <strong>info.salamiabiodunconsult@gmail.com</strong>:
+                <a 
+                  href={etherealUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="block mt-1.5 font-bold underline hover:text-emerald-950 break-all cursor-pointer"
+                >
+                  View Sent Mail Inbox →
+                </a>
+              </div>
+            )}
           </form>
         </div>
 
       </div>
 
-      <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-slate-900 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-500 gap-4">
+      <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-400 gap-4">
         <p>SAC Portal Ecosystem © 2026. All Rights Reserved.</p>
         <div className="flex gap-4">
-          <a href="#" className="hover:text-slate-300">Privacy Policy</a>
-          <a href="#" className="hover:text-slate-300">Terms of Use</a>
-          <a href="#" className="hover:text-slate-300">Sitemap</a>
+          <button onClick={() => onNavigate('privacy')} className="hover:text-slate-600 transition-colors cursor-pointer bg-transparent border-none p-0">Privacy Policy</button>
+          <button onClick={() => onNavigate('terms')} className="hover:text-slate-600 transition-colors cursor-pointer bg-transparent border-none p-0">Terms of Use</button>
+          <button onClick={() => onNavigate('sitemap')} className="hover:text-slate-600 transition-colors cursor-pointer bg-transparent border-none p-0">Sitemap</button>
+          {onOpenAdminLogin && (
+            <button onClick={onOpenAdminLogin} className="text-emerald-600 hover:text-emerald-500 font-bold transition-colors cursor-pointer bg-transparent border-none p-0">Admin Login</button>
+          )}
         </div>
       </div>
     </footer>

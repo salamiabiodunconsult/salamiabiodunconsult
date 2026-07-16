@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Sparkles, User, Brain, AlertCircle } from 'lucide-react';
+import { MessageSquare, X, Send, Sparkles, User, Brain, AlertCircle, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface Message {
@@ -20,7 +20,7 @@ export default function AITutorWidget() {
     {
       id: 'welcome',
       role: 'model',
-      text: "Hello! I am your **SAC Tech Tutor**, powered by **Gemini 3.5 Flash**. I can help you understand coding concepts (React, TypeScript), digital marketing strategies, or SEO optimizations. How can I help you excel today?",
+      text: "Hello! I am your **SAC Tech Tutor**, powered by **Gemini 3.5 Flash**. I can help you understand kids coding (Scratch, Mobile App development), graphics design, video editing, React, SEO, and artificial intelligence! How can I help you excel today?",
       timestamp: new Date()
     }
   ]);
@@ -28,6 +28,25 @@ export default function AITutorWidget() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  const academyFAQs = [
+    {
+      q: "Who can enroll in tech/coding classes?",
+      a: "Children from age 5 to 16, as well as young adults and professionals! Salami Abiodun Consult (SAC) offers tailored learning pathways: Scratch coding for kids aged 5-11, and advanced modules like Frontend Web Design, Python, Roblox 3D Game Design, and Robotics & IoT for teenagers."
+    },
+    {
+      q: "Are hardware kits needed for Robotics?",
+      a: "No! For our interactive online courses, we use advanced 3D virtual microcontroller simulation environments (such as Tinkercad and virtual Micro:bit) so students can program smart circuits completely software-side. For physical training sessions, all hardware microcontrollers are supplied by SAC."
+    },
+    {
+      q: "Are certificates/diplomas awarded?",
+      a: "Yes! Every student who completes 100% of their course modules, capstone projects, and milestones receives an accredited SAC Digital Literacy & Tech Competency Certificate or Diploma."
+    },
+    {
+      q: "Can I speak to a real human?",
+      a: "Yes, absolutely! You can click 'Chat Live' on the WhatsApp banner at the top, or text/call Salami Abiodun Consult directly on WhatsApp at +234 815 422 4426, or email us at info.salamiabiodunconsult@gmail.com."
+    }
+  ];
+
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,6 +54,30 @@ export default function AITutorWidget() {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isOpen]);
+
+  const handleFAQClick = (faq: { q: string, a: string }) => {
+    // Add user question
+    const userMsg: Message = {
+      id: `msg-${Date.now()}`,
+      role: 'user',
+      text: faq.q,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, userMsg]);
+    setIsLoading(true);
+
+    // Simulate typing delay for response
+    setTimeout(() => {
+      const botMsg: Message = {
+        id: `tutor-faq-${Date.now()}`,
+        role: 'model',
+        text: faq.a,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botMsg]);
+      setIsLoading(false);
+    }, 600);
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,6 +178,22 @@ export default function AITutorWidget() {
               </button>
             </div>
 
+            {/* WhatsApp Live Banner */}
+            <div className="bg-[#25d366]/10 p-2.5 px-4 border-b border-[#25d366]/20 flex items-center justify-between text-[11px] shrink-0">
+              <span className="text-[#075e54] font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#25d366] animate-pulse"></span>
+                Need to chat with a real human?
+              </span>
+              <a
+                href="https://wa.me/2348154224426"
+                target="_blank"
+                rel="noreferrer"
+                className="bg-[#25d366] hover:bg-[#128c7e] text-white font-black px-2.5 py-1 rounded-lg transition-colors text-[9.5px] flex items-center gap-1 shadow-sm uppercase tracking-wider"
+              >
+                Chat Live
+              </a>
+            </div>
+
             {/* Chat Body */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
               {messages.map((msg) => (
@@ -200,6 +259,26 @@ export default function AITutorWidget() {
                   <span>{error}</span>
                 </div>
               )}
+
+              {/* Instant FAQs Options Chips (adapted for SAC AI Tutor) */}
+              <div className="space-y-2 pt-2 border-t border-slate-200/60 shrink-0">
+                <p className="text-[9.5px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1">
+                  <HelpCircle className="w-3.5 h-3.5 text-slate-400 font-bold" /> Frequently Asked Academy Questions:
+                </p>
+                <div className="flex flex-col gap-1.5 max-h-36 overflow-y-auto pr-1">
+                  {academyFAQs.map((faq, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleFAQClick(faq)}
+                      className="bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-[10px] px-3 py-2 rounded-xl cursor-pointer transition-all shadow-sm font-medium text-left leading-snug hover:border-slate-300"
+                    >
+                      {faq.q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div ref={chatEndRef} />
             </div>
 
@@ -210,12 +289,12 @@ export default function AITutorWidget() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask coding or marketing questions..."
-                className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-slate-900"
+                className="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900"
               />
               <button
                 type="submit"
                 disabled={!input.trim() || isLoading}
-                className="bg-slate-900 text-white p-2.5 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer flex items-center justify-center disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
+                className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 p-2.5 rounded-xl transition-colors cursor-pointer flex items-center justify-center disabled:bg-slate-50 disabled:text-gray-300 disabled:cursor-not-allowed shadow-sm"
               >
                 <Send className="w-4 h-4" />
               </button>

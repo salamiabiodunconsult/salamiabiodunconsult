@@ -87,7 +87,7 @@ export default function WhatsAppWidget() {
       } else if (textLower.includes('price') || textLower.includes('cost') || textLower.includes('paystack') || textLower.includes('fee')) {
         replyText = "We offer flexible pricing options! You can view our premium digital packages and academy subscription pricing tier models directly in our pricing portal. All payments are securely routed via Paystack.";
       } else if (textLower.includes('contact') || textLower.includes('phone') || textLower.includes('email') || textLower.includes('office')) {
-        replyText = "You can contact our consultancy desk via email at info@salamiabiodunconsult.com. Alternatively, click the link below to initiate an active direct WhatsApp session with one of our specialized team members!";
+        replyText = "You can contact our consultancy desk via email at info.salamiabiodunconsult@gmail.com. Alternatively, click the link below to initiate an active direct WhatsApp session with one of our specialized team members!";
       } else {
         replyText = "Interesting question! As SAC's digital consult specialist, I recommend exploring our Google/Meta ad plans or free SEO audits to boost your business. Ask me about: 'Services', 'SEO Strategy', 'Free Audit', or 'Tech Academy'!";
       }
@@ -196,10 +196,10 @@ export default function WhatsAppWidget() {
             <div className="bg-[#128c7e]/10 p-2.5 border-t border-slate-200 text-center flex flex-col items-center gap-1">
               <span className="text-[10px] text-[#075e54] font-bold">Need customized solutions?</span>
               <a 
-                href="https://wa.me/2348000000000" 
+                href="https://wa.me/2348154224426" 
                 target="_blank" 
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 bg-[#25d366] hover:bg-[#128c7e] text-white font-black text-[11px] px-4 py-2 rounded-xl w-full justify-center transition-all shadow-md"
+                className="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-[#075e54] border border-[#075e54]/20 font-black text-[11px] px-4 py-2 rounded-xl w-full justify-center transition-all shadow-sm"
               >
                 <span>Launch Direct Client WhatsApp</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -213,12 +213,12 @@ export default function WhatsAppWidget() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type a query about SEO, Ads or Audit..."
-                className="flex-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#075e54]"
+                className="flex-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#075e54]"
               />
               <button
                 type="submit"
                 disabled={!input.trim()}
-                className="bg-[#075e54] text-white p-2.5 rounded-full hover:bg-[#128c7e] transition-colors cursor-pointer flex items-center justify-center disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
+                className="bg-white text-slate-800 border border-slate-200 p-2.5 rounded-full hover:bg-slate-50 transition-colors cursor-pointer flex items-center justify-center disabled:bg-slate-50 disabled:text-gray-300 disabled:cursor-not-allowed shadow-sm"
               >
                 <Send className="w-4 h-4" />
               </button>

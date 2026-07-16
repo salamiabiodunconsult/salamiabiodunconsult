@@ -10,12 +10,14 @@ interface PortfolioPageProps {
   onNavigate: (page: string) => void;
   onOpenAuditModal?: () => void;
   onOpenApptModal?: () => void;
+  onOpenMergedModal?: () => void;
 }
 
 export default function PortfolioPage({ 
   onNavigate, 
   onOpenAuditModal, 
-  onOpenApptModal 
+  onOpenApptModal,
+  onOpenMergedModal
 }: PortfolioPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -61,17 +63,11 @@ export default function PortfolioPage({
           
           <div className="pt-4 flex flex-wrap justify-center gap-4">
             <button
-              onClick={onOpenAuditModal}
+              onClick={onOpenMergedModal}
               className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl text-xs cursor-pointer shadow-lg hover:shadow-emerald-500/20 transition-all flex items-center gap-2"
             >
-              <span>Request Free SEO Audit</span>
+              <span>Get Free Audit & Strategy Session</span>
               <ArrowRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={onOpenApptModal}
-              className="bg-slate-900 hover:bg-slate-800 text-white font-bold border border-slate-200 px-6 py-3 rounded-xl text-xs cursor-pointer transition-all shadow-sm"
-            >
-              Book Strategy Session
             </button>
           </div>
         </div>
@@ -106,7 +102,7 @@ export default function PortfolioPage({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search clients or solutions..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all"
+              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all"
             />
           </div>
         </div>
@@ -230,16 +226,11 @@ export default function PortfolioPage({
 
           <div className="flex justify-center gap-4">
             <button
-              onClick={onOpenAuditModal}
-              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-6 py-3 rounded-xl text-xs cursor-pointer transition-all shadow-md"
+              onClick={onOpenMergedModal}
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-6 py-3 rounded-xl text-xs cursor-pointer transition-all shadow-md flex items-center gap-2"
             >
-              Get Free SEO Audit
-            </button>
-            <button
-              onClick={onOpenApptModal}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold px-6 py-3 rounded-xl text-xs cursor-pointer transition-all shadow-md"
-            >
-              Schedule Consult
+              <span>Get Free Audit & Strategy Session</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -348,11 +339,11 @@ export default function PortfolioPage({
                   <button
                     onClick={() => {
                       setSelectedClient(null);
-                      if (onOpenApptModal) onOpenApptModal();
+                      if (onOpenMergedModal) onOpenMergedModal();
                     }}
                     className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-4 py-2 rounded-xl text-xs cursor-pointer transition-all shadow-sm"
                   >
-                    Discuss Project
+                    Get Free Audit & Strategy Session
                   </button>
                 </div>
               </div>

@@ -1,0 +1,12 @@
+{
+  "firestore": [
+    {
+      "database": "(default)",
+      "rules": "firestore.rules"
+    },
+    {
+      "database": "ai-studio-sacwebapplicatio-c723567d-dfa8-4160-9ceb-f5b5b09cebe0",
+      "rules": "firestore.rules"
+    }
+  ]
+}

@@ -39,9 +39,15 @@ export interface Course {
   longDescription: string;
   duration: string;
   price: number; // in NGN
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Reception';
   syllabus: string[];
   mentorId?: string;
+  url?: string;
+  ageRange?: string;
+  category?: string;
+  image?: string;
+  tags?: string[];
+  points?: string;
 }
 
 export interface Product {
@@ -135,3 +141,65 @@ export interface SponsorshipRequest {
   sponsorId?: string;
   fundingNeeded?: number;
 }
+
+export interface UtmLink {
+  id: string;
+  url: string;
+  source: string;
+  medium: string;
+  campaign: string;
+  term?: string;
+  content?: string;
+  taggedUrl: string;
+  whoMadeIt: string;
+  date: string;
+}
+
+export interface Subscriber {
+  id: string;
+  email: string;
+  firstName?: string;
+  createdAt: string;
+  status: 'active' | 'unsubscribed';
+}
+
+export interface Enrollment {
+  id: string;
+  studentId: string;
+  studentEmail: string;
+  courseId: string;
+  courseTitle: string;
+  progress: number;
+  completedLessons: string[];
+  completedDate?: string;
+  xpEarned: number;
+  mode?: 'Online' | 'Physical';
+  pricePaid?: number;
+  scheduleDate?: string;
+  scheduleTime?: string;
+  durationDays?: number;
+  hoursPerDay?: number;
+  paymentStatus?: 'Paid' | 'Unpaid';
+}
+
+export interface Announcement {
+  id: string;
+  senderId: string;
+  senderName: string;
+  title: string;
+  text: string;
+  timestamp: string;
+}
+
+export interface MentorshipRequest {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  mentorId: string;
+  mentorName: string;
+  status: 'pending' | 'approved' | 'rejected';
+  timestamp: string;
+}
+
+

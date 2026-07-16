@@ -37,7 +37,7 @@ export default function PricingPage({ onSelectPlan }: PricingPageProps) {
       name: "Student / Parent Plan",
       price: 15000,
       physicalPrice: 30000,
-      period: "term",
+      period: "course",
       desc: "Comprehensive coursework credentials for self-paced development or physical labs.",
       features: [
         "Enroll in all 3 flagship courses",
@@ -55,7 +55,7 @@ export default function PricingPage({ onSelectPlan }: PricingPageProps) {
       name: "Facilitator Teacher Tier",
       price: 12000,
       physicalPrice: 25000,
-      period: "term",
+      period: "course",
       desc: "Register and assign courses to cohorts. Earn 20% on course facilitation.",
       features: [
         "Bulk register students",
@@ -73,7 +73,7 @@ export default function PricingPage({ onSelectPlan }: PricingPageProps) {
       name: "School / Institution Pack",
       price: 50000,
       physicalPrice: 100000,
-      period: "term",
+      period: "course",
       desc: "For academies, colleges, and enterprise teams seeking bulk LMS licensing.",
       features: [
         "Uncapped student roster invites",
@@ -252,7 +252,7 @@ export default function PricingPage({ onSelectPlan }: PricingPageProps) {
             {/* Buttons */}
             <div className="mt-8 space-y-2">
               <button
-                onClick={() => onSelectPlan(plan.price || plan.actualPrice, `${plan.name} (Online / Monthly)`)}
+                onClick={() => onSelectPlan(plan.price || plan.actualPrice, `${plan.name} (Online / ${plan.period})`)}
                 className={`w-full font-bold py-2.5 rounded-xl cursor-pointer text-xs transition-all ${
                   plan.popular 
                     ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950' 

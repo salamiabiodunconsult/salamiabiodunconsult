@@ -12,12 +12,14 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { clientsList } from '../data/clients';
+import { MiniTools } from '../components/MiniTools';
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
   onOpenAuditModal: () => void;
   onOpenApptModal: () => void;
   onOpenMergedModal?: () => void;
+  onOpenAuthModal?: () => void;
 }
 
 const marketingServices = [
@@ -116,7 +118,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   BarChart2,
 };
 
-export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal, onOpenMergedModal }: HomePageProps) {
+export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal, onOpenMergedModal, onOpenAuthModal }: HomePageProps) {
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const [isPaused, setIsPaused] = React.useState(false);
   const [activePricingIndex, setActivePricingIndex] = React.useState(1); // Default to Recommended plan (index 1)
@@ -363,8 +365,29 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
         </div>
       </section>
 
-
-
+      {/* 2. SHOWCASE: 3 BEST MINI-TOOLS */}
+      <section className="py-20 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3 mb-10">
+          <div className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] px-3.5 py-1.5 rounded-full uppercase tracking-wider font-semibold shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+            <span>Interactive Growth Utilities</span>
+          </div>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight sm:text-4xl">
+            Test Your Marketing Trajectory
+          </h2>
+          <p className="text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
+            Try our three premier performance marketing tools directly. Ready to audit your outbound channels and map growth vectors?
+          </p>
+        </div>
+        
+        <MiniTools 
+          currentUser={null} 
+          showcaseOnly={true} 
+          onBookAppointment={onOpenApptModal} 
+          onNavigate={onNavigate}
+          onOpenAuthModal={onOpenAuthModal}
+        />
+      </section>
 
       {/* 3. TRUSTED BRANDS & PORTFOLIO SHOWCASE - INFINITE SLIDING MARQUEE */}
       <section className="bg-white py-16 border-t border-slate-200 overflow-hidden">
