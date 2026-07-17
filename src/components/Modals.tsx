@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserProfile, UserRole, Course, Product, Appointment, BrandAudit } from '../types';
-import { signInWithGoogleReal, registerAcademyFreeTrial, signUpWithEmailReal, signInWithEmailReal } from '../firebase';
+import { signInWithGoogleReal, registerAcademyFreeTrial, signUpWithEmailReal, signInWithEmailReal, signInWithGoogleSimulated, getFriendlyAuthErrorMessage } from '../firebase';
 
 // ==========================================
 // 1. COMPLETE YOUR PROFILE MODAL
@@ -135,38 +135,11 @@ export function BookAppointmentModal({ isOpen, onClose, onBook, clientEmail = ''
   const [date, setDate] = useState('');
   const [service, setService] = useState('Search Engine Marketing (SEM)');
   const [company, setCompany] = useState('');
-  const [hasGoogleToken, setHasGoogleToken] = useState(false);
-  const [googleError, setGoogleError] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (clientName) setName(clientName);
     if (clientEmail) setEmail(clientEmail);
   }, [clientName, clientEmail]);
-
-  React.useEffect(() => {
-    setHasGoogleToken(!!sessionStorage.getItem('last_google_access_token'));
-  }, [isOpen]);
-
-  const handleGoogleSignUp = async () => {
-    try {
-      setGoogleError(null);
-      const profile = await signInWithGoogleReal('Client');
-      if (profile) {
-        setName(profile.displayName || '');
-        setEmail(profile.email || '');
-        setHasGoogleToken(true);
-      }
-    } catch (err: any) {
-      if (err && (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request' || (err.message && err.message.includes('popup-closed-by-user')))) {
-        console.warn('Google sign-up in book appointment modal closed by user');
-      } else {
-        console.error('Google sign-up in book appointment modal failed:', err);
-        setGoogleError(
-          "The Google Authentication popup was blocked or could not open. If you are inside the AI Studio sandbox preview, please click the 'Open in New Tab' button in the upper-right corner of your screen and try again!"
-        );
-      }
-    }
-  };
 
   if (!isOpen) return null;
 
@@ -271,56 +244,11 @@ export function BookAppointmentModal({ isOpen, onClose, onBook, clientEmail = ''
             </select>
           </div>
 
-          {hasGoogleToken ? (
-            <div className="bg-emerald-950/40 border border-emerald-500/20 rounded-xl p-3 flex items-start gap-2.5">
-              <span className="flex h-2 w-2 relative mt-1 shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <div>
-                <p className="text-[10px] font-bold text-emerald-400">Google Calendar Synchronized</p>
-                <p className="text-[9px] text-slate-300 mt-0.5 leading-relaxed">
-                  ✓ Google Calendar connected. We will automatically schedule this meeting on your calendar and generate a secure Google Meet video link!
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-slate-800/80 border border-slate-700 rounded-xl p-3 space-y-2">
-              <div className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1 shrink-0"></div>
-                <div>
-                  <p className="text-[10px] font-bold text-amber-400">Google Calendar Not Synced</p>
-                  <p className="text-[9px] text-slate-300 mt-0.5 leading-relaxed">
-                    To automatically add this meeting to your calendar and configure a Google Meet video conference, please authorize Google below.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={handleGoogleSignUp}
-                className="w-full flex items-center justify-center gap-1.5 bg-white hover:bg-slate-100 text-slate-800 font-extrabold py-1.5 px-3 rounded-lg cursor-pointer border border-slate-200 transition-all text-[10px] active:scale-98"
-              >
-                <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                </svg>
-                Connect Google Calendar (One-Tap)
-              </button>
-              {googleError && (
-                <div className="bg-amber-950/40 border border-amber-500/30 rounded-xl p-2.5 text-[9px] text-amber-300 leading-relaxed mt-2">
-                  ⚠️ {googleError}
-                </div>
-              )}
-            </div>
-          )}
-
           <button
             type="submit"
             className="w-full bg-white hover:bg-slate-50 text-slate-950 font-bold py-2 rounded-xl cursor-pointer transition-colors shadow-sm"
           >
-            Confirm & Invite via Google Meet
+            Confirm Booking & Schedule Meeting
           </button>
         </form>
       </motion.div>
@@ -487,43 +415,13 @@ export function MergedAuditStrategyModal({ isOpen, onClose, onSubmit, clientEmai
   const [date, setDate] = useState('');
   const [service, setService] = useState('Search Engine Marketing (SEM)');
   const [company, setCompany] = useState('');
-  const [hasGoogleToken, setHasGoogleToken] = useState(false);
-  const [googleError, setGoogleError] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (clientName) setName(clientName);
     if (clientEmail) setEmail(clientEmail);
   }, [clientName, clientEmail]);
 
-  React.useEffect(() => {
-    setHasGoogleToken(!!sessionStorage.getItem('last_google_access_token'));
-  }, [isOpen, step]);
-
   if (!isOpen) return null;
-
-  const handleGoogleSignUp = async () => {
-    try {
-      setGoogleError(null);
-      const profile = await signInWithGoogleReal('Client');
-      if (profile) {
-        setName(profile.displayName || '');
-        setEmail(profile.email || '');
-        setHasGoogleToken(true);
-        if (onUserSignedIn) {
-          onUserSignedIn(profile);
-        }
-      }
-    } catch (err: any) {
-      if (err && (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request' || (err.message && err.message.includes('popup-closed-by-user')))) {
-        console.warn('Google sign-up in strategy modal closed by user');
-      } else {
-        console.error('Google sign-up in strategy modal failed:', err);
-        setGoogleError(
-          "The Google Authentication popup was blocked or could not open. If you are inside the AI Studio sandbox preview, please click the 'Open in New Tab' button in the upper-right corner of your screen and try again!"
-        );
-      }
-    }
-  };
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
@@ -587,40 +485,13 @@ export function MergedAuditStrategyModal({ isOpen, onClose, onSubmit, clientEmai
           <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
             {step === 1 
               ? "We'll scrape your website url to grade SEO, mobile speed, tracking pixels, and conversion funnels."
-              : "Schedule a Google Meet strategy session with SAC consultants to receive your diagnostic audit report."
+              : "Schedule a strategy session with SAC consultants to receive your diagnostic audit report."
             }
           </p>
         </div>
 
         {step === 1 ? (
           <form onSubmit={handleNext} className="space-y-3.5 text-xs">
-            {!clientEmail && (
-              <div className="bg-slate-850/80 p-3.5 rounded-xl border border-slate-750 text-center">
-                <p className="text-[10px] text-slate-400 mb-2 leading-relaxed">
-                  Want to save time? Sign up with Google to auto-fill your details and unlock your customized client dashboard!
-                </p>
-                <button
-                  type="button"
-                  onClick={handleGoogleSignUp}
-                  className="w-full flex items-center justify-center gap-2 bg-white hover:bg-slate-100 text-slate-800 font-bold py-2 px-4 rounded-xl cursor-pointer border border-slate-200 transition-colors text-[11px]"
-                >
-                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                  </svg>
-                  Sign up with Google
-                </button>
-              </div>
-            )}
-
-            {googleError && (
-              <div className="bg-amber-950/40 border border-amber-500/30 rounded-xl p-3 text-[10px] text-amber-300 leading-relaxed">
-                ⚠️ {googleError}
-              </div>
-            )}
-
             <div>
               <label className="block text-slate-400 font-semibold mb-1">Full Name</label>
               <input
@@ -728,51 +599,6 @@ export function MergedAuditStrategyModal({ isOpen, onClose, onSubmit, clientEmai
                 <option value="EdTech Training Partnerships">EdTech Training Partnerships</option>
               </select>
             </div>
-
-            {hasGoogleToken ? (
-              <div className="bg-emerald-950/40 border border-emerald-500/20 rounded-xl p-3 flex items-start gap-2.5">
-                <span className="flex h-2 w-2 relative mt-1 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <div>
-                  <p className="text-[10px] font-bold text-emerald-400">Google Calendar Synchronized</p>
-                  <p className="text-[9px] text-slate-300 mt-0.5 leading-relaxed">
-                    ✓ Google Calendar connected. We will automatically schedule this meeting on your calendar and generate a secure Google Meet video link!
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-slate-800/80 border border-slate-700 rounded-xl p-3 space-y-2">
-                <div className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1 shrink-0"></div>
-                  <div>
-                    <p className="text-[10px] font-bold text-amber-400">Google Calendar Not Synced</p>
-                    <p className="text-[9px] text-slate-300 mt-0.5 leading-relaxed">
-                      To automatically add this meeting to your calendar and configure a Google Meet video conference, please authorize Google below.
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleGoogleSignUp}
-                  className="w-full flex items-center justify-center gap-1.5 bg-white hover:bg-slate-100 text-slate-800 font-extrabold py-1.5 px-3 rounded-lg cursor-pointer border border-slate-200 transition-all text-[10px] active:scale-98"
-                >
-                  <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                  </svg>
-                  Connect Google Calendar (One-Tap)
-                </button>
-                {googleError && (
-                  <div className="bg-amber-950/40 border border-amber-500/30 rounded-xl p-2.5 text-[9px] text-amber-300 leading-relaxed mt-2">
-                    ⚠️ {googleError}
-                  </div>
-                )}
-              </div>
-            )}
 
             <div className="flex gap-3 pt-2">
               <button
@@ -1557,6 +1383,7 @@ export function FreeTrialModal({ isOpen, onClose, currentUser, onUserChanged, in
   // Form states - Step 1
   const [name, setName] = useState('');
   const [email, setEmail] = useState(initialEmail);
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [authError, setAuthError] = useState('');
@@ -1603,6 +1430,10 @@ export function FreeTrialModal({ isOpen, onClose, currentUser, onUserChanged, in
       setAuthError('Please enter a valid email address.');
       return;
     }
+    if (!phone.trim()) {
+      setAuthError('Please enter your phone number.');
+      return;
+    }
     if (password.length < 6) {
       setAuthError('Password must be at least 6 characters long.');
       return;
@@ -1614,12 +1445,12 @@ export function FreeTrialModal({ isOpen, onClose, currentUser, onUserChanged, in
 
     setIsAuthLoading(true);
     try {
-      const profile = await signUpWithEmailReal(email, password, name, 'Student');
+      const profile = await signUpWithEmailReal(email, password, name, 'Student', phone);
       onUserChanged(profile);
       setStep(2);
     } catch (err: any) {
       console.error(err);
-      setAuthError(err.message || 'Registration failed. Please check your network or try a different email.');
+      setAuthError(getFriendlyAuthErrorMessage(err));
     } finally {
       setIsAuthLoading(false);
     }
@@ -1645,42 +1476,10 @@ export function FreeTrialModal({ isOpen, onClose, currentUser, onUserChanged, in
       setStep(2);
     } catch (err: any) {
       console.error(err);
-      setAuthError(err.message || 'Sign in failed. Invalid credentials.');
+      setAuthError(getFriendlyAuthErrorMessage(err));
     } finally {
       setIsAuthLoading(false);
     }
-  };
-
-  // Handle Google OAuth Fast Track
-  const handleGoogleAuth = async () => {
-    setAuthError('');
-    setIsAuthLoading(true);
-    try {
-      const profile = await signInWithGoogleReal('Student');
-      onUserChanged(profile);
-      setStep(2);
-    } catch (err: any) {
-      console.warn(err);
-      setAuthError('Google auth was cancelled or failed.');
-    } finally {
-      setIsAuthLoading(false);
-    }
-  };
-
-  // Handle Simulated Fast-Track (for quick, error-free preview testing)
-  const handleSimulatedFastTrack = () => {
-    const randomId = Math.floor(Math.random() * 1000);
-    const mockProfile: UserProfile = {
-      uid: `student-${randomId}`,
-      email: email || `student-${randomId}@salamiabiodunconsult.com`,
-      displayName: name || 'Adebayo Oluwaseun',
-      role: 'Student',
-      profileCompleted: true,
-      xp: 120,
-      badges: ['New Trialist', 'Fast Starter']
-    };
-    onUserChanged(mockProfile);
-    setStep(2);
   };
 
   // Step 2 Submission (Validation of course and date/time)
@@ -1903,6 +1702,20 @@ export function FreeTrialModal({ isOpen, onClose, currentUser, onUserChanged, in
                     />
                   </div>
 
+                  {authMode === 'signup' && (
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Phone Number</label>
+                      <input 
+                        type="tel"
+                        required
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="e.g. +234 801 234 5678"
+                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:bg-white"
+                      />
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Password</label>
                     <input 
@@ -1937,30 +1750,6 @@ export function FreeTrialModal({ isOpen, onClose, currentUser, onUserChanged, in
                     {isAuthLoading ? "Processing Account..." : authMode === 'signup' ? "Create Account & Continue" : "Sign In & Continue"}
                   </button>
                 </form>
-
-                {/* Third Party OAuth & Simulated fast-tracks */}
-                <div className="space-y-2 pt-2">
-                  <div className="relative flex py-1 items-center">
-                    <div className="flex-grow border-t border-slate-100"></div>
-                    <span className="flex-shrink mx-3 text-[9px] font-mono text-slate-400 uppercase">Or Continue with</span>
-                    <div className="flex-grow border-t border-slate-100"></div>
-                  </div>
-
-                  <button 
-                    type="button"
-                    onClick={handleGoogleAuth}
-                    disabled={isAuthLoading}
-                    className="w-full flex items-center justify-center gap-1.5 py-3 border border-slate-200 hover:bg-slate-50 rounded-xl text-xs font-black text-slate-900 transition-colors cursor-pointer bg-white shadow-sm"
-                  >
-                    <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.87-2.6-2.42-4.53-4.19-4.53z" fill="#FBBC05"/>
-                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                    </svg>
-                    <span>Sign In with Google</span>
-                  </button>
-                </div>
               </motion.div>
             )}
 
@@ -2107,7 +1896,7 @@ export function FreeTrialModal({ isOpen, onClose, currentUser, onUserChanged, in
                     type="button"
                     onClick={() => setStep(2)}
                     disabled={isPaystackProcessing}
-                    className="w-full bg-slate-100 hover:bg-slate-200 disabled:opacity-30 text-slate-600 font-bold text-xs py-2.5 rounded-xl cursor-pointer transition-colors bg-white border border-slate-200"
+                    className="w-full bg-white hover:bg-slate-50 disabled:opacity-30 text-slate-600 border border-slate-200 font-bold text-xs py-2.5 rounded-xl cursor-pointer transition-colors shadow-sm"
                   >
                     Go Back / Edit Schedule
                   </button>

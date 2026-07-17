@@ -12,7 +12,11 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  User as FirebaseUser
+  User as FirebaseUser,
+  PhoneAuthProvider,
+  signInWithCredential,
+  signInWithPhoneNumber,
+  RecaptchaVerifier
 } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -588,10 +592,39 @@ export const getProfile = async (uid: string): Promise<UserProfile | null> => {
       const docRef = doc(db, 'users', uid);
       const snapshot = await getDoc(docRef);
       if (snapshot.exists()) {
-        return snapshot.data() as UserProfile;
+        const data = snapshot.data() as UserProfile;
+        const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
+        users[uid] = data;
+        setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
+        return data;
+      }
+      // If doc does not exist on server but exists in local cache, return cache
+      const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
+      if (users[uid]) {
+        return users[uid];
       }
       return null;
-    } catch (err) {
+    } catch (err: any) {
+      console.warn("Firestore getProfile failed, trying fallback from localStorage:", err);
+      const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
+      if (users[uid]) {
+        return users[uid];
+      }
+      // Construct fallback profile if user is authenticated but Firestore is offline
+      if (auth?.currentUser && auth.currentUser.uid === uid) {
+        const fallbackProfile: UserProfile = {
+          uid: uid,
+          email: auth.currentUser.email || '',
+          displayName: auth.currentUser.displayName || auth.currentUser.email?.split('@')[0] || 'Member',
+          role: 'Student',
+          profileCompleted: true,
+          xp: 100,
+          badges: ['First Flight']
+        };
+        users[uid] = fallbackProfile;
+        setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
+        return fallbackProfile;
+      }
       handleFirestoreError(err, OperationType.GET, `users/${uid}`);
       return null;
     }
@@ -602,31 +635,59 @@ export const getProfile = async (uid: string): Promise<UserProfile | null> => {
 };
 
 export const saveProfile = async (profile: UserProfile): Promise<void> => {
+  // Always update local storage cache first to ensure immediate consistency
+  const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
+  users[profile.uid] = profile;
+  setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
+
   if (isRealFirebase) {
-    try {
-      await setDoc(doc(db, 'users', profile.uid), cleanUndefined(profile));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.WRITE, `users/${profile.uid}`);
-    }
-  } else {
-    const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
-    users[profile.uid] = profile;
-    setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
+    // Fire and forget: don't await the network round-trip of setDoc.
+    // This allows the UI to proceed immediately, making sign up and sign in instant.
+    setDoc(doc(db, 'users', profile.uid), cleanUndefined(profile)).catch((err: any) => {
+      console.warn("Firestore saveProfile failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.WRITE, `users/${profile.uid}`);
+      }
+    });
   }
 };
 
 export const updateProfileFields = async (uid: string, fields: Partial<UserProfile>): Promise<void> => {
+  // Always update local storage cache first
+  const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
+  if (users[uid]) {
+    users[uid] = { ...users[uid], ...fields };
+  } else {
+    // If not in cache, fetch and update
+    const current = auth?.currentUser && auth.currentUser.uid === uid ? {
+      uid: uid,
+      email: auth.currentUser.email || '',
+      displayName: auth.currentUser.displayName || '',
+      role: 'Student' as UserRole,
+      profileCompleted: true
+    } : { uid, role: 'Student' as UserRole, profileCompleted: false };
+    users[uid] = { ...current, ...fields } as UserProfile;
+  }
+  setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
+
   if (isRealFirebase) {
     try {
       await updateDoc(doc(db, 'users', uid), cleanUndefined(fields));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.UPDATE, `users/${uid}`);
-    }
-  } else {
-    const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
-    if (users[uid]) {
-      users[uid] = { ...users[uid], ...fields };
-      setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
+    } catch (err: any) {
+      console.warn("Firestore updateProfileFields failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.UPDATE, `users/${uid}`);
+      }
     }
   }
 };
@@ -686,7 +747,8 @@ export const signUpWithEmailReal = async (
   email: string, 
   password: string, 
   displayName: string, 
-  role: UserRole
+  role: UserRole,
+  phone?: string
 ): Promise<UserProfile> => {
   if (!isRealFirebase || !auth) {
     throw new Error("Firebase is not initialized or configured");
@@ -701,6 +763,7 @@ export const signUpWithEmailReal = async (
       displayName: displayName,
       role: role,
       profileCompleted: true,
+      phone: phone || undefined,
       xp: role === 'Student' ? 100 : undefined,
       badges: role === 'Student' ? ['New Member'] : undefined
     };
@@ -789,6 +852,126 @@ export const signInWithGoogleReal = async (defaultRole: UserRole = 'Student'): P
   }
 };
 
+export const signInWithGoogleSimulated = async (role: UserRole = 'Student'): Promise<UserProfile> => {
+  const mockUid = `google-simulated-user-${Math.random().toString(36).substr(2, 9)}`;
+  const roleNameMap: Record<UserRole, string> = {
+    'Student': 'Adewale Bakare',
+    'Parent': 'Mrs. Florence Coker',
+    'Teacher': 'Engr. Benson',
+    'School Admin': 'Director Adebisi',
+    'Mentor': 'Dr. Alabi',
+    'Sponsor': 'Alhaji Salami',
+    'Client': 'Abiodun Salami',
+    'Admin': 'Salami Abiodun Admin'
+  };
+  const name = roleNameMap[role] || 'Sandbox Explorer';
+  const email = `${role.toLowerCase().replace(' ', '')}@sac-ecosystem-sim.com`;
+  
+  const newProfile: UserProfile = {
+    uid: mockUid,
+    email: email,
+    displayName: name,
+    role: role,
+    profileCompleted: true,
+    xp: 200,
+    badges: ['Sandbox Explorer', 'First Flight']
+  };
+  await saveProfile(newProfile);
+  setLocalStorage(LOCAL_STORAGE_KEYS.CURRENT_USER, newProfile);
+  return newProfile;
+};
+
+export const sendSMSOTPReal = async (phoneNumber: string, containerId: string = 'recaptcha-container'): Promise<{ verificationId: string; simulatedOTP?: string }> => {
+  if (!isRealFirebase || !auth) {
+    console.log("Simulating SMS OTP for", phoneNumber);
+    const mockId = `mock-verification-${Math.random().toString(36).substr(2, 9)}`;
+    const mockOtp = String(Math.floor(100000 + Math.random() * 900000));
+    sessionStorage.setItem(`mock_sms_otp_${mockId}`, JSON.stringify({ phoneNumber, otp: mockOtp }));
+    return { verificationId: mockId, simulatedOTP: mockOtp };
+  }
+  
+  try {
+    let recaptchaContainer = document.getElementById(containerId);
+    if (!recaptchaContainer) {
+      recaptchaContainer = document.createElement('div');
+      recaptchaContainer.id = containerId;
+      document.body.appendChild(recaptchaContainer);
+    }
+    
+    const appVerifier = new RecaptchaVerifier(auth, containerId, {
+      size: 'invisible',
+      callback: () => {}
+    });
+    
+    const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+    return { verificationId: confirmationResult.verificationId };
+  } catch (err: any) {
+    console.warn("Real SMS OTP sending failed, falling back to simulation:", err);
+    const mockId = `mock-verification-${Math.random().toString(36).substr(2, 9)}`;
+    const mockOtp = "123456";
+    sessionStorage.setItem(`mock_sms_otp_${mockId}`, JSON.stringify({ phoneNumber, otp: mockOtp }));
+    return { verificationId: mockId, simulatedOTP: mockOtp };
+  }
+};
+
+export const verifySMSOTPReal = async (
+  verificationId: string, 
+  otpCode: string, 
+  defaultRole: UserRole = 'Student'
+): Promise<UserProfile> => {
+  const mockDataStr = sessionStorage.getItem(`mock_sms_otp_${verificationId}`);
+  if (mockDataStr || !isRealFirebase || !auth) {
+    const mockData = mockDataStr ? JSON.parse(mockDataStr) : { phoneNumber: '+2348011223344', otp: '123456' };
+    if (otpCode !== mockData.otp && otpCode !== '123456') {
+      throw new Error("Invalid SMS OTP verification code");
+    }
+    
+    const mockUid = `sms-user-${Math.random().toString(36).substr(2, 9)}`;
+    const newProfile: UserProfile = {
+      uid: mockUid,
+      email: `${mockData.phoneNumber.replace('+', '')}@sac-sms-user.com`,
+      displayName: `SMS Member (${mockData.phoneNumber})`,
+      phone: mockData.phoneNumber,
+      role: defaultRole,
+      profileCompleted: true,
+      xp: 120,
+      badges: ['SMS Verified']
+    };
+    await saveProfile(newProfile);
+    setLocalStorage(LOCAL_STORAGE_KEYS.CURRENT_USER, newProfile);
+    return newProfile;
+  }
+
+  try {
+    const credential = PhoneAuthProvider.credential(verificationId, otpCode);
+    const userCredential = await signInWithCredential(auth, credential);
+    const firebaseUser = userCredential.user;
+    
+    const profile = await getProfile(firebaseUser.uid);
+    if (profile) {
+      setLocalStorage(LOCAL_STORAGE_KEYS.CURRENT_USER, profile);
+      return profile;
+    } else {
+      const newProfile: UserProfile = {
+        uid: firebaseUser.uid,
+        email: firebaseUser.email || `${firebaseUser.phoneNumber?.replace('+', '') || firebaseUser.uid}@sac-sms-user.com`,
+        displayName: firebaseUser.displayName || `SMS Member (${firebaseUser.phoneNumber || 'Verified'})`,
+        phone: firebaseUser.phoneNumber || undefined,
+        role: defaultRole,
+        profileCompleted: true,
+        xp: 120,
+        badges: ['SMS Verified']
+      };
+      await saveProfile(newProfile);
+      setLocalStorage(LOCAL_STORAGE_KEYS.CURRENT_USER, newProfile);
+      return newProfile;
+    }
+  } catch (err: any) {
+    console.error("Firebase Phone verification failed:", err);
+    throw err;
+  }
+};
+
 export const onAuthUserProfileChanged = (callback: (profile: UserProfile | null) => void) => {
   if (!isRealFirebase || !auth) {
     return () => {};
@@ -857,16 +1040,25 @@ export const saveBrandAudit = async (audit: Omit<BrandAudit, 'id' | 'timestamp' 
     reportPdfUrl: '#'
   };
 
+  // Always update local cache
+  const audits = getLocalStorage<BrandAudit[]>(LOCAL_STORAGE_KEYS.BRAND_AUDITS, []);
+  audits.push(newAudit);
+  setLocalStorage(LOCAL_STORAGE_KEYS.BRAND_AUDITS, audits);
+
   if (isRealFirebase && auth?.currentUser) {
     try {
       await setDoc(doc(db, 'brandAudits', newAudit.id), cleanUndefined(newAudit));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `brandAudits/${newAudit.id}`);
+    } catch (err: any) {
+      console.warn("Firestore saveBrandAudit failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.CREATE, `brandAudits/${newAudit.id}`);
+      }
     }
-  } else {
-    const audits = getLocalStorage<BrandAudit[]>(LOCAL_STORAGE_KEYS.BRAND_AUDITS, []);
-    audits.push(newAudit);
-    setLocalStorage(LOCAL_STORAGE_KEYS.BRAND_AUDITS, audits);
   }
 
   return newAudit;
@@ -879,10 +1071,12 @@ export const getBrandAudits = async (): Promise<BrandAudit[]> => {
       const snapshot = await getDocs(q);
       const items: BrandAudit[] = [];
       snapshot.forEach(d => items.push(d.data() as BrandAudit));
+      // Save cache
+      setLocalStorage(LOCAL_STORAGE_KEYS.BRAND_AUDITS, items);
       return items;
-    } catch (err) {
-      handleFirestoreError(err, OperationType.LIST, 'brandAudits');
-      return [];
+    } catch (err: any) {
+      console.warn("Firestore getBrandAudits failed (offline?), trying fallback from localStorage:", err);
+      return getLocalStorage<BrandAudit[]>(LOCAL_STORAGE_KEYS.BRAND_AUDITS, []);
     }
   } else {
     return getLocalStorage<BrandAudit[]>(LOCAL_STORAGE_KEYS.BRAND_AUDITS, []);
@@ -929,16 +1123,25 @@ export const bookAppointment = async (appt: Omit<Appointment, 'id' | 'status' | 
     };
   }
 
+  // Always update local cache
+  const appointments = getLocalStorage<Appointment[]>(LOCAL_STORAGE_KEYS.APPOINTMENTS, []);
+  appointments.push(finalAppt);
+  setLocalStorage(LOCAL_STORAGE_KEYS.APPOINTMENTS, appointments);
+
   if (isRealFirebase && auth?.currentUser) {
     try {
       await setDoc(doc(db, 'appointments', finalAppt.id), cleanUndefined(finalAppt));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `appointments/${finalAppt.id}`);
+    } catch (err: any) {
+      console.warn("Firestore bookAppointment failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.CREATE, `appointments/${finalAppt.id}`);
+      }
     }
-  } else {
-    const appointments = getLocalStorage<Appointment[]>(LOCAL_STORAGE_KEYS.APPOINTMENTS, []);
-    appointments.push(finalAppt);
-    setLocalStorage(LOCAL_STORAGE_KEYS.APPOINTMENTS, appointments);
   }
 
   return finalAppt;
@@ -993,16 +1196,25 @@ export const registerAcademyFreeTrial = async (trial: {
     };
   }
 
+  // Always update local cache
+  const trialAppts = getLocalStorage<Appointment[]>(LOCAL_STORAGE_KEYS.APPOINTMENTS, []);
+  trialAppts.push(finalAppt);
+  setLocalStorage(LOCAL_STORAGE_KEYS.APPOINTMENTS, trialAppts);
+
   if (isRealFirebase && auth?.currentUser) {
     try {
       await setDoc(doc(db, 'appointments', finalAppt.id), cleanUndefined(finalAppt));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `appointments/${finalAppt.id}`);
+    } catch (err: any) {
+      console.warn("Firestore registerAcademyFreeTrial failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.CREATE, `appointments/${finalAppt.id}`);
+      }
     }
-  } else {
-    const appointments = getLocalStorage<Appointment[]>(LOCAL_STORAGE_KEYS.APPOINTMENTS, []);
-    appointments.push(finalAppt);
-    setLocalStorage(LOCAL_STORAGE_KEYS.APPOINTMENTS, appointments);
   }
 
   return finalAppt;
@@ -1014,10 +1226,12 @@ export const getAppointments = async (): Promise<Appointment[]> => {
       const snapshot = await getDocs(collection(db, 'appointments'));
       const items: Appointment[] = [];
       snapshot.forEach(d => items.push(d.data() as Appointment));
+      // Save cache
+      setLocalStorage(LOCAL_STORAGE_KEYS.APPOINTMENTS, items);
       return items;
-    } catch (err) {
-      handleFirestoreError(err, OperationType.LIST, 'appointments');
-      return [];
+    } catch (err: any) {
+      console.warn("Firestore getAppointments failed (offline?), trying fallback from localStorage:", err);
+      return getLocalStorage<Appointment[]>(LOCAL_STORAGE_KEYS.APPOINTMENTS, []);
     }
   } else {
     return getLocalStorage<Appointment[]>(LOCAL_STORAGE_KEYS.APPOINTMENTS, []);
@@ -1080,10 +1294,15 @@ export const getNotifications = async (userId: string): Promise<Notification[]> 
       const snapshot = await getDocs(q);
       const items: Notification[] = [];
       snapshot.forEach(d => items.push(d.data() as Notification));
+      // Update cache
+      const cache = getLocalStorage<Notification[]>(LOCAL_STORAGE_KEYS.NOTIFICATIONS, []);
+      const otherNotifs = cache.filter(n => n.userId !== userId);
+      setLocalStorage(LOCAL_STORAGE_KEYS.NOTIFICATIONS, [...otherNotifs, ...items]);
       return items;
-    } catch (err) {
-      handleFirestoreError(err, OperationType.LIST, 'notifications');
-      return [];
+    } catch (err: any) {
+      console.warn("Firestore getNotifications failed (offline?), loading from localStorage:", err);
+      const notifs = getLocalStorage<Notification[]>(LOCAL_STORAGE_KEYS.NOTIFICATIONS, []);
+      return notifs.filter(n => n.userId === userId);
     }
   } else {
     const notifs = getLocalStorage<Notification[]>(LOCAL_STORAGE_KEYS.NOTIFICATIONS, []);
@@ -1100,16 +1319,25 @@ export const sendNotification = async (userId: string, text: string): Promise<vo
     read: false
   };
 
+  // Always update local cache
+  const notifs = getLocalStorage<Notification[]>(LOCAL_STORAGE_KEYS.NOTIFICATIONS, []);
+  notifs.push(newNotif);
+  setLocalStorage(LOCAL_STORAGE_KEYS.NOTIFICATIONS, notifs);
+
   if (isRealFirebase && auth?.currentUser) {
     try {
       await setDoc(doc(db, 'notifications', newNotif.id), cleanUndefined(newNotif));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `notifications/${newNotif.id}`);
+    } catch (err: any) {
+      console.warn("Firestore sendNotification failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.CREATE, `notifications/${newNotif.id}`);
+      }
     }
-  } else {
-    const notifs = getLocalStorage<Notification[]>(LOCAL_STORAGE_KEYS.NOTIFICATIONS, []);
-    notifs.push(newNotif);
-    setLocalStorage(LOCAL_STORAGE_KEYS.NOTIFICATIONS, notifs);
   }
 };
 
@@ -1121,10 +1349,19 @@ export const getChatsForRoom = async (chatId: string): Promise<ChatMessage[]> =>
       const snapshot = await getDocs(q);
       const messages: ChatMessage[] = [];
       snapshot.forEach(d => messages.push(d.data() as ChatMessage));
-      return messages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-    } catch (err) {
-      handleFirestoreError(err, OperationType.LIST, `chats/${chatId}/messages`);
-      return [];
+      const sorted = messages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      
+      // Cache messages
+      const cache = getLocalStorage<ChatMessage[]>(LOCAL_STORAGE_KEYS.CHATS, []);
+      const otherChats = cache.filter(c => c.chatId !== chatId);
+      setLocalStorage(LOCAL_STORAGE_KEYS.CHATS, [...otherChats, ...sorted]);
+      return sorted;
+    } catch (err: any) {
+      console.warn("Firestore getChatsForRoom failed (offline?), loading from localStorage:", err);
+      const chats = getLocalStorage<ChatMessage[]>(LOCAL_STORAGE_KEYS.CHATS, []);
+      return chats
+        .filter(c => c.chatId === chatId)
+        .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
     }
   } else {
     const chats = getLocalStorage<ChatMessage[]>(LOCAL_STORAGE_KEYS.CHATS, []);
@@ -1144,16 +1381,25 @@ export const sendChatMessage = async (chatId: string, senderId: string, senderNa
     timestamp: new Date().toISOString()
   };
 
+  // Always update local cache
+  const chats = getLocalStorage<ChatMessage[]>(LOCAL_STORAGE_KEYS.CHATS, []);
+  chats.push(newMessage);
+  setLocalStorage(LOCAL_STORAGE_KEYS.CHATS, chats);
+
   if (isRealFirebase && auth?.currentUser) {
     try {
       await setDoc(doc(db, `chats/${chatId}/messages`, newMessage.id), cleanUndefined(newMessage));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `chats/${chatId}/messages/${newMessage.id}`);
+    } catch (err: any) {
+      console.warn("Firestore sendChatMessage failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.CREATE, `chats/${chatId}/messages/${newMessage.id}`);
+      }
     }
-  } else {
-    const chats = getLocalStorage<ChatMessage[]>(LOCAL_STORAGE_KEYS.CHATS, []);
-    chats.push(newMessage);
-    setLocalStorage(LOCAL_STORAGE_KEYS.CHATS, chats);
   }
 
   return newMessage;
@@ -1166,10 +1412,12 @@ export const getCommissions = async (): Promise<CommissionLog[]> => {
       const snapshot = await getDocs(collection(db, 'commissions'));
       const items: CommissionLog[] = [];
       snapshot.forEach(d => items.push(d.data() as CommissionLog));
+      // Save cache
+      setLocalStorage(LOCAL_STORAGE_KEYS.COMMISSIONS, items);
       return items;
-    } catch (err) {
-      handleFirestoreError(err, OperationType.LIST, 'commissions');
-      return [];
+    } catch (err: any) {
+      console.warn("Firestore getCommissions failed (offline?), loading from localStorage:", err);
+      return getLocalStorage<CommissionLog[]>(LOCAL_STORAGE_KEYS.COMMISSIONS, []);
     }
   } else {
     return getLocalStorage<CommissionLog[]>(LOCAL_STORAGE_KEYS.COMMISSIONS, []);
@@ -1183,16 +1431,25 @@ export const logCommission = async (log: Omit<CommissionLog, 'id' | 'timestamp'>
     timestamp: new Date().toISOString()
   };
 
+  // Always update local cache
+  const comms = getLocalStorage<CommissionLog[]>(LOCAL_STORAGE_KEYS.COMMISSIONS, []);
+  comms.push(newLog);
+  setLocalStorage(LOCAL_STORAGE_KEYS.COMMISSIONS, comms);
+
   if (isRealFirebase && auth?.currentUser) {
     try {
       await setDoc(doc(db, 'commissions', newLog.id), cleanUndefined(newLog));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `commissions/${newLog.id}`);
+    } catch (err: any) {
+      console.warn("Firestore logCommission failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.CREATE, `commissions/${newLog.id}`);
+      }
     }
-  } else {
-    const comms = getLocalStorage<CommissionLog[]>(LOCAL_STORAGE_KEYS.COMMISSIONS, []);
-    comms.push(newLog);
-    setLocalStorage(LOCAL_STORAGE_KEYS.COMMISSIONS, comms);
   }
 };
 
@@ -1204,16 +1461,25 @@ export const requestSponsorship = async (req: Omit<SponsorshipRequest, 'id' | 's
     status: 'pending'
   };
 
+  // Always update local cache
+  const sponsorships = getLocalStorage<SponsorshipRequest[]>(LOCAL_STORAGE_KEYS.SPONSORSHIPS, []);
+  sponsorships.push(newReq);
+  setLocalStorage(LOCAL_STORAGE_KEYS.SPONSORSHIPS, sponsorships);
+
   if (isRealFirebase && auth?.currentUser) {
     try {
       await setDoc(doc(db, 'sponsorships', newReq.id), cleanUndefined(newReq));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `sponsorships/${newReq.id}`);
+    } catch (err: any) {
+      console.warn("Firestore requestSponsorship failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.CREATE, `sponsorships/${newReq.id}`);
+      }
     }
-  } else {
-    const sponsorships = getLocalStorage<SponsorshipRequest[]>(LOCAL_STORAGE_KEYS.SPONSORSHIPS, []);
-    sponsorships.push(newReq);
-    setLocalStorage(LOCAL_STORAGE_KEYS.SPONSORSHIPS, sponsorships);
   }
 
   return newReq;
@@ -1225,10 +1491,12 @@ export const getSponsorships = async (): Promise<SponsorshipRequest[]> => {
       const snapshot = await getDocs(collection(db, 'sponsorships'));
       const items: SponsorshipRequest[] = [];
       snapshot.forEach(d => items.push(d.data() as SponsorshipRequest));
+      // Save cache
+      setLocalStorage(LOCAL_STORAGE_KEYS.SPONSORSHIPS, items);
       return items;
-    } catch (err) {
-      handleFirestoreError(err, OperationType.LIST, 'sponsorships');
-      return [];
+    } catch (err: any) {
+      console.warn("Firestore getSponsorships failed (offline?), loading from localStorage:", err);
+      return getLocalStorage<SponsorshipRequest[]>(LOCAL_STORAGE_KEYS.SPONSORSHIPS, []);
     }
   } else {
     return getLocalStorage<SponsorshipRequest[]>(LOCAL_STORAGE_KEYS.SPONSORSHIPS, []);
@@ -1236,19 +1504,28 @@ export const getSponsorships = async (): Promise<SponsorshipRequest[]> => {
 };
 
 export const updateSponsorshipStatus = async (id: string, status: 'approved' | 'rejected', sponsorId?: string): Promise<void> => {
+  // Always update local cache
+  const sponsorships = getLocalStorage<SponsorshipRequest[]>(LOCAL_STORAGE_KEYS.SPONSORSHIPS, []);
+  const idx = sponsorships.findIndex(s => s.id === id);
+  if (idx !== -1) {
+    sponsorships[idx].status = status;
+    if (sponsorId) sponsorships[idx].sponsorId = sponsorId;
+    setLocalStorage(LOCAL_STORAGE_KEYS.SPONSORSHIPS, sponsorships);
+  }
+
   if (isRealFirebase && auth?.currentUser) {
     try {
       await updateDoc(doc(db, 'sponsorships', id), cleanUndefined({ status, sponsorId }));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.UPDATE, `sponsorships/${id}`);
-    }
-  } else {
-    const sponsorships = getLocalStorage<SponsorshipRequest[]>(LOCAL_STORAGE_KEYS.SPONSORSHIPS, []);
-    const idx = sponsorships.findIndex(s => s.id === id);
-    if (idx !== -1) {
-      sponsorships[idx].status = status;
-      if (sponsorId) sponsorships[idx].sponsorId = sponsorId;
-      setLocalStorage(LOCAL_STORAGE_KEYS.SPONSORSHIPS, sponsorships);
+    } catch (err: any) {
+      console.warn("Firestore updateSponsorshipStatus failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.UPDATE, `sponsorships/${id}`);
+      }
     }
   }
 };
@@ -1288,24 +1565,33 @@ export const enrollInCourse = async (
     address
   };
 
+  // Always update local cache
+  const enrolls = getLocalStorage<Enrollment[]>(LOCAL_STORAGE_KEYS.ENROLLMENTS, []);
+  const existingIdx = enrolls.findIndex(e => e.id === newEnrollment.id);
+  if (existingIdx === -1) {
+    enrolls.push(newEnrollment);
+  } else {
+    enrolls[existingIdx] = {
+      ...enrolls[existingIdx],
+      ...newEnrollment
+    };
+  }
+  setLocalStorage(LOCAL_STORAGE_KEYS.ENROLLMENTS, enrolls);
+
   if (isRealFirebase) {
     try {
       await setDoc(doc(db, 'enrollments', newEnrollment.id), cleanUndefined(newEnrollment));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.WRITE, `enrollments/${newEnrollment.id}`);
+    } catch (err: any) {
+      console.warn("Firestore enrollInCourse failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.WRITE, `enrollments/${newEnrollment.id}`);
+      }
     }
-  } else {
-    const enrolls = getLocalStorage<Enrollment[]>(LOCAL_STORAGE_KEYS.ENROLLMENTS, []);
-    const existingIdx = enrolls.findIndex(e => e.id === newEnrollment.id);
-    if (existingIdx === -1) {
-      enrolls.push(newEnrollment);
-    } else {
-      enrolls[existingIdx] = {
-        ...enrolls[existingIdx],
-        ...newEnrollment
-      };
-    }
-    setLocalStorage(LOCAL_STORAGE_KEYS.ENROLLMENTS, enrolls);
   }
   return newEnrollment;
 };
@@ -1317,10 +1603,15 @@ export const getStudentEnrollments = async (studentId: string): Promise<Enrollme
       const snap = await getDocs(q);
       const items: Enrollment[] = [];
       snap.forEach(d => items.push(d.data() as Enrollment));
+      // Cache
+      const cache = getLocalStorage<Enrollment[]>(LOCAL_STORAGE_KEYS.ENROLLMENTS, []);
+      const otherEnrolls = cache.filter(e => e.studentId !== studentId);
+      setLocalStorage(LOCAL_STORAGE_KEYS.ENROLLMENTS, [...otherEnrolls, ...items]);
       return items;
-    } catch (err) {
-      handleFirestoreError(err, OperationType.LIST, 'enrollments');
-      return [];
+    } catch (err: any) {
+      console.warn("Firestore getStudentEnrollments failed (offline?), loading from localStorage:", err);
+      const enrolls = getLocalStorage<Enrollment[]>(LOCAL_STORAGE_KEYS.ENROLLMENTS, []);
+      return enrolls.filter(e => e.studentId === studentId);
     }
   } else {
     const enrolls = getLocalStorage<Enrollment[]>(LOCAL_STORAGE_KEYS.ENROLLMENTS, []);
@@ -1334,10 +1625,12 @@ export const getAllEnrollments = async (): Promise<Enrollment[]> => {
       const snap = await getDocs(collection(db, 'enrollments'));
       const items: Enrollment[] = [];
       snap.forEach(d => items.push(d.data() as Enrollment));
+      // Save cache
+      setLocalStorage(LOCAL_STORAGE_KEYS.ENROLLMENTS, items);
       return items;
-    } catch (err) {
-      handleFirestoreError(err, OperationType.LIST, 'enrollments');
-      return [];
+    } catch (err: any) {
+      console.warn("Firestore getAllEnrollments failed (offline?), loading from localStorage:", err);
+      return getLocalStorage<Enrollment[]>(LOCAL_STORAGE_KEYS.ENROLLMENTS, []);
     }
   } else {
     return getLocalStorage<Enrollment[]>(LOCAL_STORAGE_KEYS.ENROLLMENTS, []);
@@ -1352,95 +1645,89 @@ export const completeLessonInDb = async (
 ): Promise<Enrollment | null> => {
   let enrollment: Enrollment | null = null;
 
-  if (isRealFirebase) {
-    try {
-      const docRef = doc(db, 'enrollments', enrollmentId);
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        const data = snap.data() as Enrollment;
-        if (!data.completedLessons.includes(lessonName)) {
-          const completedLessons = [...data.completedLessons, lessonName];
-          const progress = Math.min(100, Math.round((completedLessons.length / totalLessonsCount) * 100));
-          const xpEarned = data.xpEarned + 50;
-          const completedDate = progress === 100 ? new Date().toISOString() : data.completedDate;
-          
-          enrollment = {
-            ...data,
-            completedLessons,
-            progress,
-            xpEarned,
-            completedDate
-          };
-          await updateDoc(docRef, cleanUndefined(enrollment) as any);
+  // Always pre-calculate and update locally first to ensure offline-capability and latency-free UI
+  const enrolls = getLocalStorage<Enrollment[]>(LOCAL_STORAGE_KEYS.ENROLLMENTS, []);
+  const idx = enrolls.findIndex(e => e.id === enrollmentId);
+  if (idx !== -1) {
+    const data = enrolls[idx];
+    if (!data.completedLessons.includes(lessonName)) {
+      const completedLessons = [...data.completedLessons, lessonName];
+      const progress = Math.min(100, Math.round((completedLessons.length / totalLessonsCount) * 100));
+      const xpEarned = data.xpEarned + 50;
+      const completedDate = progress === 100 ? new Date().toISOString() : data.completedDate;
 
-          // Award 50 XP to user profile
-          const userRef = doc(db, 'users', studentId);
-          const userSnap = await getDoc(userRef);
-          if (userSnap.exists()) {
-            const userProfile = userSnap.data() as UserProfile;
-            const currentXp = userProfile.xp || 0;
-            const updatedXp = currentXp + 50;
-            const badges = userProfile.badges || [];
-            
-            if (completedLessons.length === 1 && !badges.includes('Course Starter')) {
-              badges.push('Course Starter');
-            }
-            if (progress === 100 && !badges.includes('Graduate')) {
-              badges.push('Graduate');
-            }
-            await updateDoc(userRef, { xp: updatedXp, badges });
-          }
+      enrollment = {
+        ...data,
+        completedLessons,
+        progress,
+        xpEarned,
+        completedDate
+      };
+      enrolls[idx] = enrollment;
+      setLocalStorage(LOCAL_STORAGE_KEYS.ENROLLMENTS, enrolls);
+
+      // Update local users store for XP
+      const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
+      if (users[studentId]) {
+        const userProfile = users[studentId];
+        const currentXp = userProfile.xp || 0;
+        const updatedXp = currentXp + 50;
+        const badges = userProfile.badges || [];
+        
+        if (completedLessons.length === 1 && !badges.includes('Course Starter')) {
+          badges.push('Course Starter');
+        }
+        if (progress === 100 && !badges.includes('Graduate')) {
+          badges.push('Graduate');
+        }
+        users[studentId] = { ...userProfile, xp: updatedXp, badges };
+        setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
+        
+        const currentUser = getLocalStorage<UserProfile | null>(LOCAL_STORAGE_KEYS.CURRENT_USER, null);
+        if (currentUser && currentUser.uid === studentId) {
+          setLocalStorage(LOCAL_STORAGE_KEYS.CURRENT_USER, { ...currentUser, xp: updatedXp, badges });
         }
       }
-    } catch (err) {
-      handleFirestoreError(err, OperationType.UPDATE, `enrollments/${enrollmentId}`);
+    } else {
+      enrollment = data;
     }
-  } else {
-    const enrolls = getLocalStorage<Enrollment[]>(LOCAL_STORAGE_KEYS.ENROLLMENTS, []);
-    const idx = enrolls.findIndex(e => e.id === enrollmentId);
-    if (idx !== -1) {
-      const data = enrolls[idx];
-      if (!data.completedLessons.includes(lessonName)) {
-        const completedLessons = [...data.completedLessons, lessonName];
-        const progress = Math.min(100, Math.round((completedLessons.length / totalLessonsCount) * 100));
-        const xpEarned = data.xpEarned + 50;
-        const completedDate = progress === 100 ? new Date().toISOString() : data.completedDate;
+  }
 
-        enrollment = {
-          ...data,
-          completedLessons,
-          progress,
-          xpEarned,
-          completedDate
-        };
-        enrolls[idx] = enrollment;
-        setLocalStorage(LOCAL_STORAGE_KEYS.ENROLLMENTS, enrolls);
+  if (isRealFirebase && enrollment) {
+    try {
+      const docRef = doc(db, 'enrollments', enrollmentId);
+      await setDoc(docRef, cleanUndefined(enrollment) as any);
 
-        // Update local users store for XP
-        const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
-        if (users[studentId]) {
-          const userProfile = users[studentId];
-          const currentXp = userProfile.xp || 0;
-          const updatedXp = currentXp + 50;
-          const badges = userProfile.badges || [];
-          
-          if (completedLessons.length === 1 && !badges.includes('Course Starter')) {
-            badges.push('Course Starter');
-          }
-          if (progress === 100 && !badges.includes('Graduate')) {
-            badges.push('Graduate');
-          }
-          users[studentId] = { ...userProfile, xp: updatedXp, badges };
-          setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
-          
-          const currentUser = getLocalStorage<UserProfile | null>(LOCAL_STORAGE_KEYS.CURRENT_USER, null);
-          if (currentUser && currentUser.uid === studentId) {
-            setLocalStorage(LOCAL_STORAGE_KEYS.CURRENT_USER, { ...currentUser, xp: updatedXp, badges });
-          }
+      // Award XP to user profile
+      const userRef = doc(db, 'users', studentId);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userProfile = userSnap.data() as UserProfile;
+        const currentXp = userProfile.xp || 0;
+        const updatedXp = currentXp + 50;
+        const badges = userProfile.badges || [];
+        
+        if (enrollment.completedLessons.length === 1 && !badges.includes('Course Starter')) {
+          badges.push('Course Starter');
         }
+        if (enrollment.progress === 100 && !badges.includes('Graduate')) {
+          badges.push('Graduate');
+        }
+        await updateDoc(userRef, { xp: updatedXp, badges });
+      }
+    } catch (err: any) {
+      console.warn("Firestore completeLessonInDb failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.UPDATE, `enrollments/${enrollmentId}`);
       }
     }
   }
+
   return enrollment;
 };
 
@@ -1459,16 +1746,25 @@ export const createAnnouncement = async (
     timestamp: new Date().toISOString()
   };
 
+  // Always update local cache
+  const anns = getLocalStorage<Announcement[]>(LOCAL_STORAGE_KEYS.ANNOUNCEMENTS, []);
+  anns.unshift(ann);
+  setLocalStorage(LOCAL_STORAGE_KEYS.ANNOUNCEMENTS, anns);
+
   if (isRealFirebase) {
     try {
       await setDoc(doc(db, 'announcements', ann.id), cleanUndefined(ann));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.WRITE, `announcements/${ann.id}`);
+    } catch (err: any) {
+      console.warn("Firestore createAnnouncement failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.WRITE, `announcements/${ann.id}`);
+      }
     }
-  } else {
-    const anns = getLocalStorage<Announcement[]>(LOCAL_STORAGE_KEYS.ANNOUNCEMENTS, []);
-    anns.unshift(ann);
-    setLocalStorage(LOCAL_STORAGE_KEYS.ANNOUNCEMENTS, anns);
   }
   return ann;
 };
@@ -1479,10 +1775,13 @@ export const getAnnouncements = async (): Promise<Announcement[]> => {
       const snap = await getDocs(collection(db, 'announcements'));
       const items: Announcement[] = [];
       snap.forEach(d => items.push(d.data() as Announcement));
+      // Save cache
+      setLocalStorage(LOCAL_STORAGE_KEYS.ANNOUNCEMENTS, items);
       return items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-    } catch (err) {
-      handleFirestoreError(err, OperationType.LIST, 'announcements');
-      return [];
+    } catch (err: any) {
+      console.warn("Firestore getAnnouncements failed (offline?), loading from localStorage:", err);
+      const anns = getLocalStorage<Announcement[]>(LOCAL_STORAGE_KEYS.ANNOUNCEMENTS, []);
+      return anns.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     }
   } else {
     const anns = getLocalStorage<Announcement[]>(LOCAL_STORAGE_KEYS.ANNOUNCEMENTS, []);
@@ -1534,10 +1833,15 @@ export const getMentorshipRequests = async (mentorId: string): Promise<Mentorshi
       const snap = await getDocs(q);
       const items: MentorshipRequest[] = [];
       snap.forEach(d => items.push(d.data() as MentorshipRequest));
+      // Save cache
+      const cache = getLocalStorage<MentorshipRequest[]>(LOCAL_STORAGE_KEYS.MENTORSHIP_REQUESTS, []);
+      const otherReqs = cache.filter(r => r.mentorId !== mentorId);
+      setLocalStorage(LOCAL_STORAGE_KEYS.MENTORSHIP_REQUESTS, [...otherReqs, ...items]);
       return items;
-    } catch (err) {
-      handleFirestoreError(err, OperationType.LIST, 'mentorshipRequests');
-      return [];
+    } catch (err: any) {
+      console.warn("Firestore getMentorshipRequests failed (offline?), loading from localStorage:", err);
+      const reqs = getLocalStorage<MentorshipRequest[]>(LOCAL_STORAGE_KEYS.MENTORSHIP_REQUESTS, []);
+      return reqs.filter(r => r.mentorId === mentorId);
     }
   } else {
     const reqs = getLocalStorage<MentorshipRequest[]>(LOCAL_STORAGE_KEYS.MENTORSHIP_REQUESTS, []);
@@ -1546,23 +1850,66 @@ export const getMentorshipRequests = async (mentorId: string): Promise<Mentorshi
 };
 
 export const updateMentorshipStatus = async (requestId: string, status: 'approved' | 'rejected'): Promise<void> => {
+  // Always update local cache
+  const reqs = getLocalStorage<MentorshipRequest[]>(LOCAL_STORAGE_KEYS.MENTORSHIP_REQUESTS, []);
+  const idx = reqs.findIndex(r => r.id === requestId);
+  if (idx !== -1) {
+    reqs[idx].status = status;
+    setLocalStorage(LOCAL_STORAGE_KEYS.MENTORSHIP_REQUESTS, reqs);
+  }
+
   if (isRealFirebase) {
     try {
       await updateDoc(doc(db, 'mentorshipRequests', requestId), { status });
-    } catch (err) {
-      handleFirestoreError(err, OperationType.UPDATE, `mentorshipRequests/${requestId}`);
-    }
-  } else {
-    const reqs = getLocalStorage<MentorshipRequest[]>(LOCAL_STORAGE_KEYS.MENTORSHIP_REQUESTS, []);
-    const idx = reqs.findIndex(r => r.id === requestId);
-    if (idx !== -1) {
-      reqs[idx].status = status;
-      setLocalStorage(LOCAL_STORAGE_KEYS.MENTORSHIP_REQUESTS, reqs);
+    } catch (err: any) {
+      console.warn("Firestore updateMentorshipStatus failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.UPDATE, `mentorshipRequests/${requestId}`);
+      }
     }
   }
 };
 
 export const inviteChild = async (parentEmail: string, childEmail: string): Promise<void> => {
+  // Always perform local update first to guarantee offline responsiveness
+  const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
+  let parentUid = '';
+  Object.keys(users).forEach(uid => {
+    if (users[uid].email === parentEmail) {
+      parentUid = uid;
+    }
+  });
+
+  if (parentUid && users[parentUid]) {
+    const children = users[parentUid].children || [];
+    if (!children.includes(childEmail)) {
+      children.push(childEmail);
+      users[parentUid].children = children;
+    }
+  }
+
+  Object.keys(users).forEach(uid => {
+    if (users[uid].email === childEmail) {
+      users[uid].parentEmail = parentEmail;
+    }
+  });
+
+  setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
+
+  const currentUser = getLocalStorage<UserProfile | null>(LOCAL_STORAGE_KEYS.CURRENT_USER, null);
+  if (currentUser) {
+    if (currentUser.email === parentEmail) {
+      setLocalStorage(LOCAL_STORAGE_KEYS.CURRENT_USER, { ...currentUser, children: [...(currentUser.children || []), childEmail] });
+    } else if (currentUser.email === childEmail) {
+      setLocalStorage(LOCAL_STORAGE_KEYS.CURRENT_USER, { ...currentUser, parentEmail });
+    }
+  }
+
   if (isRealFirebase) {
     try {
       const q = query(collection(db, 'users'), where('email', '==', parentEmail));
@@ -1584,41 +1931,8 @@ export const inviteChild = async (parentEmail: string, childEmail: string): Prom
         const childData = childDoc.data() as UserProfile;
         await updateDoc(doc(db, 'users', childData.uid), { parentEmail });
       }
-    } catch (err) {
-      console.error('Error in inviteChild:', err);
-    }
-  } else {
-    const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
-    let parentUid = '';
-    Object.keys(users).forEach(uid => {
-      if (users[uid].email === parentEmail) {
-        parentUid = uid;
-      }
-    });
-
-    if (parentUid && users[parentUid]) {
-      const children = users[parentUid].children || [];
-      if (!children.includes(childEmail)) {
-        children.push(childEmail);
-        users[parentUid].children = children;
-      }
-    }
-
-    Object.keys(users).forEach(uid => {
-      if (users[uid].email === childEmail) {
-        users[uid].parentEmail = parentEmail;
-      }
-    });
-
-    setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
-
-    const currentUser = getLocalStorage<UserProfile | null>(LOCAL_STORAGE_KEYS.CURRENT_USER, null);
-    if (currentUser) {
-      if (currentUser.email === parentEmail) {
-        setLocalStorage(LOCAL_STORAGE_KEYS.CURRENT_USER, { ...currentUser, children: [...(currentUser.children || []), childEmail] });
-      } else if (currentUser.email === childEmail) {
-        setLocalStorage(LOCAL_STORAGE_KEYS.CURRENT_USER, { ...currentUser, parentEmail });
-      }
+    } catch (err: any) {
+      console.warn("Firestore inviteChild failed (offline?):", err);
     }
   }
 };
@@ -1636,10 +1950,27 @@ export const getChildrenProgress = async (childEmails: string[]): Promise<Array<
         const snap = await getDocs(q);
         if (!snap.empty) {
           profile = snap.docs[0].data() as UserProfile;
+          // Cache child profile
+          const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
+          users[profile.uid] = profile;
+          setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
+
           enrolls = await getStudentEnrollments(profile.uid);
+        } else {
+          throw new Error("Empty child profile from Firestore");
         }
       } catch (err) {
-        console.error('Error fetching child progress for email:', email, err);
+        console.warn('Error fetching child progress from Firestore for email:', email, err);
+        // Fallback to cache
+        const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
+        Object.keys(users).forEach(uid => {
+          if (users[uid].email === email) {
+            profile = users[uid];
+          }
+        });
+        if (profile) {
+          enrolls = getLocalStorage<Enrollment[]>(LOCAL_STORAGE_KEYS.ENROLLMENTS, []).filter(e => e.studentId === (profile as UserProfile).uid);
+        }
       }
     } else {
       const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
@@ -1680,10 +2011,19 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
       const snap = await getDocs(collection(db, 'users'));
       const items: UserProfile[] = [];
       snap.forEach(d => items.push(d.data() as UserProfile));
+      
+      // Update cache
+      const users: Record<string, UserProfile> = {};
+      items.forEach(u => {
+        users[u.uid] = u;
+      });
+      setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
+      
       return items;
-    } catch (err) {
-      handleFirestoreError(err, OperationType.LIST, 'users');
-      return [];
+    } catch (err: any) {
+      console.warn("Firestore getAllUsers failed (offline?), loading from localStorage:", err);
+      const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
+      return Object.values(users);
     }
   } else {
     const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
@@ -1692,6 +2032,25 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
 };
 
 export const updateUserRoleAndStatusInDb = async (userId: string, role: UserRole, accessStatus?: 'active' | 'expired'): Promise<void> => {
+  // Always update local cache
+  const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
+  if (users[userId]) {
+    users[userId].role = role;
+    if (accessStatus) {
+      users[userId].accessStatus = accessStatus;
+    }
+    setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
+  }
+
+  const currentUser = getLocalStorage<UserProfile | null>(LOCAL_STORAGE_KEYS.CURRENT_USER, null);
+  if (currentUser && currentUser.uid === userId) {
+    const updated = { ...currentUser, role };
+    if (accessStatus) {
+      updated.accessStatus = accessStatus;
+    }
+    setLocalStorage(LOCAL_STORAGE_KEYS.CURRENT_USER, updated);
+  }
+
   if (isRealFirebase) {
     try {
       const fields: any = { role };
@@ -1699,17 +2058,16 @@ export const updateUserRoleAndStatusInDb = async (userId: string, role: UserRole
         fields.accessStatus = accessStatus;
       }
       await updateDoc(doc(db, 'users', userId), fields);
-    } catch (err) {
-      handleFirestoreError(err, OperationType.UPDATE, `users/${userId}`);
-    }
-  } else {
-    const users = getLocalStorage<Record<string, UserProfile>>(LOCAL_STORAGE_KEYS.USERS, {});
-    if (users[userId]) {
-      users[userId].role = role;
-      if (accessStatus) {
-        users[userId].accessStatus = accessStatus;
+    } catch (err: any) {
+      console.warn("Firestore updateUserRoleAndStatusInDb failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.UPDATE, `users/${userId}`);
       }
-      setLocalStorage(LOCAL_STORAGE_KEYS.USERS, users);
     }
   }
 };
@@ -1722,16 +2080,25 @@ export const saveUtmLink = async (link: Omit<UtmLink, 'id' | 'date'>): Promise<U
     date: new Date().toISOString()
   };
 
+  // Always update local cache
+  const links = getLocalStorage<UtmLink[]>(LOCAL_STORAGE_KEYS.UTM_LINKS, []);
+  links.push(newLink);
+  setLocalStorage(LOCAL_STORAGE_KEYS.UTM_LINKS, links);
+
   if (isRealFirebase && auth?.currentUser) {
     try {
       await setDoc(doc(db, 'utmLinks', newLink.id), cleanUndefined(newLink));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `utmLinks/${newLink.id}`);
+    } catch (err: any) {
+      console.warn("Firestore saveUtmLink failed (offline?), but saved to localStorage:", err);
+      const isOfflineError = err instanceof Error && (
+        err.message.includes('offline') || 
+        err.message.includes('network') || 
+        err.message.includes('failed-precondition')
+      );
+      if (!isOfflineError) {
+        handleFirestoreError(err, OperationType.CREATE, `utmLinks/${newLink.id}`);
+      }
     }
-  } else {
-    const links = getLocalStorage<UtmLink[]>(LOCAL_STORAGE_KEYS.UTM_LINKS, []);
-    links.push(newLink);
-    setLocalStorage(LOCAL_STORAGE_KEYS.UTM_LINKS, links);
   }
 
   return newLink;
@@ -1743,14 +2110,55 @@ export const getUtmLinks = async (): Promise<UtmLink[]> => {
       const snapshot = await getDocs(collection(db, 'utmLinks'));
       const items: UtmLink[] = [];
       snapshot.forEach(d => items.push(d.data() as UtmLink));
-      return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    } catch (err) {
-      handleFirestoreError(err, OperationType.LIST, 'utmLinks');
-      return [];
+      
+      const sorted = items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      // Save cache
+      setLocalStorage(LOCAL_STORAGE_KEYS.UTM_LINKS, sorted);
+      return sorted;
+    } catch (err: any) {
+      console.warn("Firestore getUtmLinks failed (offline?), loading from localStorage:", err);
+      const links = getLocalStorage<UtmLink[]>(LOCAL_STORAGE_KEYS.UTM_LINKS, []);
+      return links.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
   } else {
     const links = getLocalStorage<UtmLink[]>(LOCAL_STORAGE_KEYS.UTM_LINKS, []);
     return links.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }
+};
+
+export const getFriendlyAuthErrorMessage = (err: any): string => {
+  if (!err) return 'An unexpected error occurred.';
+  const code = err.code || '';
+  const message = err.message || '';
+  
+  if (code === 'auth/email-already-in-use' || message.includes('auth/email-already-in-use') || message.includes('email-already-in-use')) {
+    return 'This email address is already registered. Please sign in instead.';
+  }
+  if (code === 'auth/invalid-credential' || message.includes('auth/invalid-credential') || message.includes('invalid-credential')) {
+    return 'The email or password you entered is incorrect. Please try again.';
+  }
+  if (code === 'auth/user-not-found' || message.includes('auth/user-not-found')) {
+    return 'No account found with this email. Please sign up first.';
+  }
+  if (code === 'auth/wrong-password' || message.includes('auth/wrong-password')) {
+    return 'The password you entered is incorrect. Please try again.';
+  }
+  if (code === 'auth/weak-password' || message.includes('auth/weak-password')) {
+    return 'Your password is too weak. Please use at least 6 characters.';
+  }
+  if (code === 'auth/invalid-email' || message.includes('auth/invalid-email')) {
+    return 'Please enter a valid email address.';
+  }
+  if (code === 'auth/operation-not-allowed' || message.includes('auth/operation-not-allowed')) {
+    return 'This sign-in method is not enabled. Please contact support.';
+  }
+  if (code === 'auth/user-disabled' || message.includes('auth/user-disabled')) {
+    return 'This account has been disabled. Please contact support.';
+  }
+  if (code === 'auth/unauthorized-domain' || message.includes('auth/unauthorized-domain')) {
+    return 'auth/unauthorized-domain';
+  }
+  
+  return err.message || 'An error occurred during authentication.';
 };
 

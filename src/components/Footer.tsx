@@ -116,10 +116,6 @@ export default function Footer({ onNavigate, onOpenAdminLogin }: FooterProps) {
         <div className="space-y-4">
           <h4 className="text-xs font-bold text-slate-900 tracking-wider uppercase">Get In Touch</h4>
           <div className="space-y-3 text-xs text-slate-600">
-            <p className="flex items-start gap-2">
-              <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <span>Salami Abiodun Consult Head Office, Nigeria</span>
-            </p>
             <p className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-emerald-600 shrink-0" />
               <a href="mailto:info.salamiabiodunconsult@gmail.com" className="hover:text-slate-900 transition-colors truncate">

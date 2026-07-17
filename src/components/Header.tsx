@@ -13,9 +13,183 @@ import {
   triggerSignOut,
   signInWithEmailReal,
   signUpWithEmailReal,
-  signInWithGoogleReal
+  getFriendlyAuthErrorMessage,
+  saveProfile
 } from '../firebase';
 import Logo from './Logo';
+
+const countriesList = [
+  { code: 'NG', dialCode: '+234', name: 'Nigeria', flag: '🇳🇬' },
+  { code: 'US', dialCode: '+1', name: 'United States', flag: '🇺🇸' },
+  { code: 'GB', dialCode: '+44', name: 'United Kingdom', flag: '🇬🇧' },
+  { code: 'CA', dialCode: '+1', name: 'Canada', flag: '🇨🇦' },
+  { code: 'AF', dialCode: '+93', name: 'Afghanistan', flag: '🇦🇫' },
+  { code: 'AL', dialCode: '+355', name: 'Albania', flag: '🇦🇱' },
+  { code: 'DZ', dialCode: '+213', name: 'Algeria', flag: '🇩🇿' },
+  { code: 'AD', dialCode: '+376', name: 'Andorra', flag: '🇦🇩' },
+  { code: 'AO', dialCode: '+244', name: 'Angola', flag: '🇦🇴' },
+  { code: 'AR', dialCode: '+54', name: 'Argentina', flag: '🇦🇷' },
+  { code: 'AM', dialCode: '+374', name: 'Armenia', flag: '🇦🇲' },
+  { code: 'AU', dialCode: '+61', name: 'Australia', flag: '🇦🇺' },
+  { code: 'AT', dialCode: '+43', name: 'Austria', flag: '🇦🇹' },
+  { code: 'AZ', dialCode: '+994', name: 'Azerbaijan', flag: '🇦🇿' },
+  { code: 'BS', dialCode: '+1-242', name: 'Bahamas', flag: '🇧🇸' },
+  { code: 'BH', dialCode: '+973', name: 'Bahrain', flag: '🇧🇭' },
+  { code: 'BD', dialCode: '+880', name: 'Bangladesh', flag: '🇧🇩' },
+  { code: 'BB', dialCode: '+1-246', name: 'Barbados', flag: '🇧🇧' },
+  { code: 'BY', dialCode: '+375', name: 'Belarus', flag: '🇧🇾' },
+  { code: 'BE', dialCode: '+32', name: 'Belgium', flag: '🇧🇪' },
+  { code: 'BZ', dialCode: '+501', name: 'Belize', flag: '🇧🇿' },
+  { code: 'BJ', dialCode: '+229', name: 'Benin', flag: '🇧🇯' },
+  { code: 'BT', dialCode: '+975', name: 'Bhutan', flag: '🇧🇹' },
+  { code: 'BO', dialCode: '+591', name: 'Bolivia', flag: '🇧🇴' },
+  { code: 'BA', dialCode: '+387', name: 'Bosnia and Herzegovina', flag: '🇧🇦' },
+  { code: 'BW', dialCode: '+267', name: 'Botswana', flag: '🇧🇼' },
+  { code: 'BR', dialCode: '+55', name: 'Brazil', flag: '🇧🇷' },
+  { code: 'BN', dialCode: '+673', name: 'Brunei', flag: '🇧🇳' },
+  { code: 'BG', dialCode: '+359', name: 'Bulgaria', flag: '🇧🇬' },
+  { code: 'BF', dialCode: '+226', name: 'Burkina Faso', flag: '🇧🇫' },
+  { code: 'BI', dialCode: '+257', name: 'Burundi', flag: '🇧🇮' },
+  { code: 'KH', dialCode: '+855', name: 'Cambodia', flag: '🇰🇭' },
+  { code: 'CM', dialCode: '+237', name: 'Cameroon', flag: '🇨🇲' },
+  { code: 'CV', dialCode: '+238', name: 'Cape Verde', flag: '🇨🇻' },
+  { code: 'CF', dialCode: '+236', name: 'Central African Republic', flag: '🇨🇫' },
+  { code: 'TD', dialCode: '+235', name: 'Chad', flag: '🇹🇩' },
+  { code: 'CL', dialCode: '+56', name: 'Chile', flag: '🇨🇱' },
+  { code: 'CN', dialCode: '+86', name: 'China', flag: '🇨🇳' },
+  { code: 'CO', dialCode: '+57', name: 'Colombia', flag: '🇨🇴' },
+  { code: 'KM', dialCode: '+269', name: 'Comoros', flag: '🇰🇲' },
+  { code: 'CR', dialCode: '+506', name: 'Costa Rica', flag: '🇨🇷' },
+  { code: 'HR', dialCode: '+385', name: 'Croatia', flag: '🇭🇷' },
+  { code: 'CU', dialCode: '+53', name: 'Cuba', flag: '🇨🇺' },
+  { code: 'CY', dialCode: '+357', name: 'Cyprus', flag: '🇨🇾' },
+  { code: 'CZ', dialCode: '+420', name: 'Czech Republic', flag: '🇨🇿' },
+  { code: 'CD', dialCode: '+243', name: 'Democratic Republic of the Congo', flag: '🇨🇩' },
+  { code: 'DK', dialCode: '+45', name: 'Denmark', flag: '🇩🇰' },
+  { code: 'DJ', dialCode: '+253', name: 'Djibouti', flag: '🇩🇯' },
+  { code: 'DM', dialCode: '+1-767', name: 'Dominica', flag: '🇩🇲' },
+  { code: 'DO', dialCode: '+1-809', name: 'Dominican Republic', flag: '🇩🇴' },
+  { code: 'EC', dialCode: '+593', name: 'Ecuador', flag: '🇪🇨' },
+  { code: 'EG', dialCode: '+20', name: 'Egypt', flag: '🇪🇬' },
+  { code: 'SV', dialCode: '+503', name: 'El Salvador', flag: '🇸🇻' },
+  { code: 'GQ', dialCode: '+240', name: 'Equatorial Guinea', flag: '🇬🇶' },
+  { code: 'ER', dialCode: '+291', name: 'Eritrea', flag: '🇪🇷' },
+  { code: 'EE', dialCode: '+372', name: 'Estonia', flag: '🇪🇪' },
+  { code: 'ET', dialCode: '+251', name: 'Ethiopia', flag: '🇪🇹' },
+  { code: 'FJ', dialCode: '+679', name: 'Fiji', flag: '🇫🇯' },
+  { code: 'FI', dialCode: '+358', name: 'Finland', flag: '🇫🇮' },
+  { code: 'FR', dialCode: '+33', name: 'France', flag: '🇫🇷' },
+  { code: 'GA', dialCode: '+241', name: 'Gabon', flag: '🇬🇦' },
+  { code: 'GM', dialCode: '+220', name: 'Gambia', flag: '🇬🇲' },
+  { code: 'GE', dialCode: '+995', name: 'Georgia', flag: '🇬🇪' },
+  { code: 'DE', dialCode: '+49', name: 'Germany', flag: '🇩🇪' },
+  { code: 'GH', dialCode: '+233', name: 'Ghana', flag: '🇬🇭' },
+  { code: 'GR', dialCode: '+30', name: 'Greece', flag: '🇬🇷' },
+  { code: 'GD', dialCode: '+1-473', name: 'Grenada', flag: '🇬🇩' },
+  { code: 'GT', dialCode: '+502', name: 'Guatemala', flag: '🇬🇹' },
+  { code: 'GN', dialCode: '+224', name: 'Guinea', flag: '🇬🇳' },
+  { code: 'GW', dialCode: '+245', name: 'Guinea-Bissau', flag: '🇬🇼' },
+  { code: 'GY', dialCode: '+592', name: 'Guyana', flag: '🇬🇾' },
+  { code: 'HT', dialCode: '+509', name: 'Haiti', flag: '🇭🇹' },
+  { code: 'HN', dialCode: '+504', name: 'Honduras', flag: '🇭🇳' },
+  { code: 'HK', dialCode: '+852', name: 'Hong Kong', flag: '🇭🇰' },
+  { code: 'HU', dialCode: '+36', name: 'Hungary', flag: '🇭🇺' },
+  { code: 'IS', dialCode: '+354', name: 'Iceland', flag: '🇮🇸' },
+  { code: 'IN', dialCode: '+91', name: 'India', flag: '🇮🇳' },
+  { code: 'ID', dialCode: '+62', name: 'Indonesia', flag: '🇮🇩' },
+  { code: 'IR', dialCode: '+98', name: 'Iran', flag: '🇮🇷' },
+  { code: 'IQ', dialCode: '+964', name: 'Iraq', flag: '🇮🇶' },
+  { code: 'IE', dialCode: '+353', name: 'Ireland', flag: '🇮🇪' },
+  { code: 'IL', dialCode: '+972', name: 'Israel', flag: '🇮🇱' },
+  { code: 'IT', dialCode: '+39', name: 'Italy', flag: '🇮🇹' },
+  { code: 'CI', dialCode: '+225', name: 'Ivory Coast', flag: '🇨🇮' },
+  { code: 'JM', dialCode: '+1-876', name: 'Jamaica', flag: '🇯🇲' },
+  { code: 'JP', dialCode: '+81', name: 'Japan', flag: '🇯🇵' },
+  { code: 'JO', dialCode: '+962', name: 'Jordan', flag: '🇯🇴' },
+  { code: 'KZ', dialCode: '+7', name: 'Kazakhstan', flag: '🇰🇿' },
+  { code: 'KE', dialCode: '+254', name: 'Kenya', flag: '🇰🇪' },
+  { code: 'KW', dialCode: '+965', name: 'Kuwait', flag: '🇰🇼' },
+  { code: 'KG', dialCode: '+996', name: 'Kyrgyzstan', flag: '🇰🇬' },
+  { code: 'LA', dialCode: '+856', name: 'Laos', flag: '🇱🇦' },
+  { code: 'LV', dialCode: '+371', name: 'Latvia', flag: '🇱🇻' },
+  { code: 'LB', dialCode: '+961', name: 'Lebanon', flag: '🇱🇧' },
+  { code: 'LS', dialCode: '+266', name: 'Lesotho', flag: '🇱🇸' },
+  { code: 'LR', dialCode: '+231', name: 'Liberia', flag: '🇱🇷' },
+  { code: 'LY', dialCode: '+218', name: 'Libya', flag: '🇱🇾' },
+  { code: 'LI', dialCode: '+423', name: 'Liechtenstein', flag: '🇱🇮' },
+  { code: 'LT', dialCode: '+370', name: 'Lithuania', flag: '🇱🇹' },
+  { code: 'LU', dialCode: '+352', name: 'Luxembourg', flag: '🇱🇺' },
+  { code: 'MK', dialCode: '+389', name: 'Macedonia', flag: '🇲🇰' },
+  { code: 'MG', dialCode: '+261', name: 'Madagascar', flag: '🇲🇬' },
+  { code: 'MW', dialCode: '+265', name: 'Malawi', flag: '🇲🇼' },
+  { code: 'MY', dialCode: '+60', name: 'Malaysia', flag: '🇲🇾' },
+  { code: 'MV', dialCode: '+960', name: 'Maldives', flag: '🇲🇻' },
+  { code: 'ML', dialCode: '+223', name: 'Mali', flag: '🇲🇱' },
+  { code: 'MT', dialCode: '+356', name: 'Malta', flag: '🇲🇹' },
+  { code: 'MR', dialCode: '+222', name: 'Mauritania', flag: '🇲🇷' },
+  { code: 'MU', dialCode: '+230', name: 'Mauritius', flag: '🇲🇺' },
+  { code: 'MX', dialCode: '+52', name: 'Mexico', flag: '🇲🇽' },
+  { code: 'MD', dialCode: '+373', name: 'Moldova', flag: '🇲🇩' },
+  { code: 'MC', dialCode: '+377', name: 'Monaco', flag: '🇲🇨' },
+  { code: 'MN', dialCode: '+976', name: 'Mongolia', flag: '🇲🇳' },
+  { code: 'ME', dialCode: '+382', name: 'Montenegro', flag: '🇲🇪' },
+  { code: 'MA', dialCode: '+212', name: 'Morocco', flag: '🇲🇦' },
+  { code: 'MZ', dialCode: '+258', name: 'Mozambique', flag: '🇲🇿' },
+  { code: 'MM', dialCode: '+95', name: 'Myanmar', flag: '🇲🇲' },
+  { code: 'NA', dialCode: '+264', name: 'Namibia', flag: '🇳🇦' },
+  { code: 'NP', dialCode: '+977', name: 'Nepal', flag: '🇳🇵' },
+  { code: 'NL', dialCode: '+31', name: 'Netherlands', flag: '🇳🇱' },
+  { code: 'NZ', dialCode: '+64', name: 'New Zealand', flag: '🇳🇿' },
+  { code: 'NI', dialCode: '+505', name: 'Nicaragua', flag: '🇳🇮' },
+  { code: 'NE', dialCode: '+227', name: 'Niger', flag: '🇳🇪' },
+  { code: 'NO', dialCode: '+47', name: 'Norway', flag: '🇳🇴' },
+  { code: 'OM', dialCode: '+968', name: 'Oman', flag: '🇴🇲' },
+  { code: 'PK', dialCode: '+92', name: 'Pakistan', flag: '🇵🇰' },
+  { code: 'PS', dialCode: '+970', name: 'Palestine', flag: '🇵🇸' },
+  { code: 'PA', dialCode: '+507', name: 'Panama', flag: '🇵🇦' },
+  { code: 'PG', dialCode: '+675', name: 'Papua New Guinea', flag: '🇵🇬' },
+  { code: 'PY', dialCode: '+595', name: 'Paraguay', flag: '🇵🇾' },
+  { code: 'PE', dialCode: '+51', name: 'Peru', flag: '🇵🇪' },
+  { code: 'PH', dialCode: '+63', name: 'Philippines', flag: '🇵🇭' },
+  { code: 'PL', dialCode: '+48', name: 'Poland', flag: '🇵🇱' },
+  { code: 'PT', dialCode: '+351', name: 'Portugal', flag: '🇵🇹' },
+  { code: 'QA', dialCode: '+974', name: 'Qatar', flag: '🇶🇦' },
+  { code: 'RO', dialCode: '+40', name: 'Romania', flag: '🇷🇴' },
+  { code: 'RU', dialCode: '+7', name: 'Russia', flag: '🇷🇺' },
+  { code: 'RW', dialCode: '+250', name: 'Rwanda', flag: '🇷🇼' },
+  { code: 'SA', dialCode: '+966', name: 'Saudi Arabia', flag: '🇸🇦' },
+  { code: 'SN', dialCode: '+221', name: 'Senegal', flag: '🇸🇳' },
+  { code: 'RS', dialCode: '+381', name: 'Serbia', flag: '🇷🇸' },
+  { code: 'SC', dialCode: '+248', name: 'Seychelles', flag: '🇸🇨' },
+  { code: 'SL', dialCode: '+232', name: 'Sierra Leone', flag: '🇸🇱' },
+  { code: 'SG', dialCode: '+65', name: 'Singapore', flag: '🇸🇬' },
+  { code: 'SK', dialCode: '+421', name: 'Slovakia', flag: '🇸🇰' },
+  { code: 'SI', dialCode: '+386', name: 'Slovenia', flag: '🇸🇮' },
+  { code: 'SO', dialCode: '+252', name: 'Somalia', flag: '🇸🇴' },
+  { code: 'ZA', dialCode: '+27', name: 'South Africa', flag: '🇿🇦' },
+  { code: 'ES', dialCode: '+34', name: 'Spain', flag: '🇪🇸' },
+  { code: 'LK', dialCode: '+94', name: 'Sri Lanka', flag: '🇱🇰' },
+  { code: 'SD', dialCode: '+249', name: 'Sudan', flag: '🇸🇩' },
+  { code: 'SE', dialCode: '+46', name: 'Sweden', flag: '🇸🇪' },
+  { code: 'CH', dialCode: '+41', name: 'Switzerland', flag: '🇨🇭' },
+  { code: 'SY', dialCode: '+963', name: 'Syria', flag: '🇸🇾' },
+  { code: 'TW', dialCode: '+886', name: 'Taiwan', flag: '🇹🇼' },
+  { code: 'TZ', dialCode: '+255', name: 'Tanzania', flag: '🇹🇿' },
+  { code: 'TH', dialCode: '+66', name: 'Thailand', flag: '🇹🇭' },
+  { code: 'TG', dialCode: '+228', name: 'Togo', flag: '🇹🇬' },
+  { code: 'TN', dialCode: '+216', name: 'Tunisia', flag: '🇹🇳' },
+  { code: 'TR', dialCode: '+90', name: 'Turkey', flag: '🇹🇷' },
+  { code: 'UG', dialCode: '+256', name: 'Uganda', flag: '🇺🇬' },
+  { code: 'UA', dialCode: '+380', name: 'Ukraine', flag: '🇺🇦' },
+  { code: 'AE', dialCode: '+971', name: 'United Arab Emirates', flag: '🇦🇪' },
+  { code: 'UY', dialCode: '+598', name: 'Uruguay', flag: '🇺🇾' },
+  { code: 'UZ', dialCode: '+998', name: 'Uzbekistan', flag: '🇺🇿' },
+  { code: 'VE', dialCode: '+58', name: 'Venezuela', flag: '🇻🇪' },
+  { code: 'VN', dialCode: '+84', name: 'Vietnam', flag: '🇻🇳' },
+  { code: 'YE', dialCode: '+967', name: 'Yemen', flag: '🇾🇪' },
+  { code: 'ZM', dialCode: '+260', name: 'Zambia', flag: '🇿🇲' },
+  { code: 'ZW', dialCode: '+263', name: 'Zimbabwe', flag: '🇿🇼' }
+];
 
 interface HeaderProps {
   currentUser: UserProfile | null;
@@ -26,10 +200,11 @@ interface HeaderProps {
   onMarkNotificationsRead: () => void;
   isAuthModalOpen?: boolean;
   setIsAuthModalOpen?: (isOpen: boolean) => void;
-  authTab?: 'signin' | 'signup';
-  setAuthTab?: (tab: 'signin' | 'signup') => void;
+  authTab?: 'signin' | 'signup' | 'sms';
+  setAuthTab?: (tab: 'signin' | 'signup' | 'sms') => void;
   isAdminAuth?: boolean;
   setIsAdminAuth?: (val: boolean) => void;
+  isClientSignUpOnly?: boolean;
 }
 
 export default function Header({
@@ -44,7 +219,8 @@ export default function Header({
   authTab: propAuthTab,
   setAuthTab: propSetAuthTab,
   isAdminAuth,
-  setIsAdminAuth
+  setIsAdminAuth,
+  isClientSignUpOnly = false
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
@@ -59,10 +235,20 @@ export default function Header({
   const setAuthTab = propSetAuthTab !== undefined ? propSetAuthTab : setLocalAuthTab;
   const [signUpName, setSignUpName] = useState('');
   const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpPhone, setSignUpPhone] = useState('');
+  const [selectedPhoneCode, setSelectedPhoneCode] = useState('+234');
   const [signUpRole, setSignUpRole] = useState<UserRole>('Student');
   const [signInEmail, setSignInEmail] = useState('');
   const [signInPassword, setSignInPassword] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
+  
+  // SMS Authentication State variables
+  const [smsPhoneNumber, setSmsPhoneNumber] = useState('');
+  const [smsOtpCode, setSmsOtpCode] = useState('');
+  const [smsVerificationId, setSmsVerificationId] = useState('');
+  const [smsOtpSent, setSmsOtpSent] = useState(false);
+  const [smsSimulatedOtp, setSmsSimulatedOtp] = useState('');
+
   const [authError, setAuthError] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
 
@@ -83,13 +269,18 @@ export default function Header({
     setAuthLoading(true);
     try {
       const profile = await signInWithEmailReal(signInEmail, signInPassword);
+      if (activePage === 'home') {
+        profile.role = 'Client';
+        await saveProfile(profile);
+      }
       onUserChanged(profile);
       setIsAuthModalOpen(false);
       setSignInEmail('');
       setSignInPassword('');
       onNavigate('dashboard');
     } catch (err: any) {
-      setAuthError(err.message || 'Failed to sign in. Please check your credentials.');
+      console.error("Sign-in error:", err);
+      setAuthError(getFriendlyAuthErrorMessage(err));
     } finally {
       setAuthLoading(false);
     }
@@ -101,31 +292,22 @@ export default function Header({
     setAuthLoading(true);
     try {
       sessionStorage.setItem('selected_role', signUpRole);
-      const profile = await signUpWithEmailReal(signUpEmail, signUpPassword, signUpName, signUpRole);
+      const fullPhone = `${selectedPhoneCode}${signUpPhone}`;
+      const profile = await signUpWithEmailReal(signUpEmail, signUpPassword, signUpName, signUpRole, fullPhone);
+      if (activePage === 'home') {
+        profile.role = 'Client';
+        await saveProfile(profile);
+      }
       onUserChanged(profile);
       setIsAuthModalOpen(false);
       setSignUpName('');
       setSignUpEmail('');
+      setSignUpPhone('');
       setSignUpPassword('');
       onNavigate('dashboard');
     } catch (err: any) {
-      setAuthError(err.message || 'Failed to register account.');
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setAuthError(null);
-    setAuthLoading(true);
-    try {
-      sessionStorage.setItem('selected_role', signUpRole);
-      const profile = await signInWithGoogleReal(signUpRole);
-      onUserChanged(profile);
-      setIsAuthModalOpen(false);
-      onNavigate('dashboard');
-    } catch (err: any) {
-      setAuthError(err.message || 'Google Sign-In failed.');
+      console.error("Sign-up error:", err);
+      setAuthError(getFriendlyAuthErrorMessage(err));
     } finally {
       setAuthLoading(false);
     }
@@ -144,19 +326,19 @@ export default function Header({
 
   const rolesToDisplay = isAdminAuth
     ? availableRoles.filter(item => item.role === 'Admin')
-    : activePage === 'home'
+    : isClientSignUpOnly || activePage === 'home'
       ? availableRoles.filter(item => item.role === 'Client')
       : availableRoles.filter(item => item.role !== 'Client' && item.role !== 'Admin');
 
   React.useEffect(() => {
     if (isAdminAuth) {
       setSignUpRole('Admin');
-    } else if (activePage === 'home') {
+    } else if (isClientSignUpOnly || activePage === 'home') {
       setSignUpRole('Client');
     } else {
       setSignUpRole('Student');
     }
-  }, [activePage, isAuthModalOpen, isAdminAuth]);
+  }, [activePage, isAuthModalOpen, isAdminAuth, isClientSignUpOnly]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -456,15 +638,24 @@ export default function Header({
               </div>
             </div>
 
+            {isClientSignUpOnly && (
+              <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] p-3.5 rounded-2xl space-y-1">
+                <p className="font-bold text-emerald-200">✨ Client Workspace Access Activated</p>
+                <p className="text-[10px] text-emerald-300/80 leading-relaxed">
+                  Please sign up or sign in as a <strong>Client</strong> below to instantly unlock your Website SEO audit workspace and calendar coordinates.
+                </p>
+              </div>
+            )}
+
             {/* Segmented Tab Controls */}
-            <div className="flex bg-slate-950 p-1 rounded-2xl border border-slate-800/80">
+            <div className="flex bg-slate-950 p-1 rounded-2xl border border-slate-800/80 gap-1">
               <button
                 type="button"
                 onClick={() => {
                   setAuthTab('signin');
                   setAuthError(null);
                 }}
-                className={`flex-1 py-2 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                className={`flex-1 py-1.5 text-center text-[10px] font-bold rounded-xl transition-all cursor-pointer ${
                   authTab === 'signin'
                     ? 'bg-slate-800 text-emerald-400 shadow-md'
                     : 'text-slate-400 hover:text-slate-200'
@@ -478,7 +669,7 @@ export default function Header({
                   setAuthTab('signup');
                   setAuthError(null);
                 }}
-                className={`flex-1 py-2 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                className={`flex-1 py-1.5 text-center text-[10px] font-bold rounded-xl transition-all cursor-pointer ${
                   authTab === 'signup'
                     ? 'bg-slate-800 text-emerald-400 shadow-md'
                     : 'text-slate-400 hover:text-slate-200'
@@ -487,15 +678,41 @@ export default function Header({
                 Join Now
               </button>
             </div>
-
+ 
             {/* Error Banner */}
             {authError && (
-              <div className="bg-rose-500/10 border border-rose-500/25 text-rose-400 text-[11px] p-3 rounded-xl flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 shrink-0" />
-                <span>{authError}</span>
-              </div>
+              authError === 'auth/unauthorized-domain' ? (
+                <div className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs p-4 rounded-2xl space-y-3">
+                  <div className="flex items-start gap-2.5">
+                    <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-bold text-amber-200">Domain Authorization Required!</h4>
+                      <p className="text-[10px] text-amber-300/90 mt-1 leading-relaxed">
+                        This custom domain (<span className="font-mono text-white underline">salamiabiodunconsult.github.io</span>) has not yet been authorized in your Firebase Project's Settings.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-slate-950/60 p-3 rounded-xl text-[10px] space-y-1.5 border border-slate-800 text-slate-300">
+                     <p className="font-semibold text-slate-200">How to authorize this domain:</p>
+                     <ol className="list-decimal pl-4 space-y-1">
+                       <li>Open the <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline font-semibold hover:text-emerald-300">Firebase Console</a>.</li>
+                       <li>Go to <span className="font-semibold text-slate-200">Authentication &gt; Settings</span> tab.</li>
+                       <li>Scroll down to <span className="font-semibold text-slate-200">Authorized domains</span> and click <span className="font-semibold text-slate-200">Add domain</span>.</li>
+                       <li>Add: <span className="font-mono text-white bg-slate-800 px-1 py-0.5 rounded">salamiabiodunconsult.github.io</span></li>
+                     </ol>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-rose-500/10 border border-rose-500/25 text-rose-400 text-[11px] p-3.5 rounded-2xl">
+                  <div className="flex items-center gap-2">
+                    <ShieldAlert className="w-4.5 h-4.5 shrink-0 text-rose-400" />
+                    <span className="font-medium">{authError}</span>
+                  </div>
+                </div>
+              )
             )}
-
+ 
             {/* Form Content */}
             {authTab === 'signin' && (
               <form onSubmit={handleSignInSubmit} className="space-y-3.5">
@@ -533,29 +750,9 @@ export default function Header({
                   )}
                   <span>Sign In</span>
                 </button>
-
-                <div className="relative py-2 flex items-center justify-center">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-800/80"></div></div>
-                  <span className="relative bg-slate-900 px-3 text-[9px] font-mono uppercase text-slate-500 tracking-wider">or continue with</span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleGoogleSignIn}
-                  disabled={authLoading}
-                  className="w-full bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 font-bold py-2 rounded-xl transition-all cursor-pointer text-xs flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24">
-                    <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.5 15.01 0 12 0 7.34 0 3.39 2.67 1.46 6.56l3.86 3C6.23 6.94 8.89 5.04 12 5.04z"/>
-                    <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.28 1.47-1.11 2.71-2.36 3.55l3.66 2.84c2.14-1.97 3.39-4.88 3.39-8.54z"/>
-                    <path fill="#FBBC05" d="M5.32 14.44a7.16 7.16 0 0 1 0-4.88l-3.86-3a11.96 11.96 0 0 0 0 10.88l3.86-3z"/>
-                    <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.66-2.84c-1.01.68-2.31 1.09-3.79 1.09-3.11 0-5.77-1.9-6.72-4.52l-3.86 3C3.39 21.33 7.34 24 12 24z"/>
-                  </svg>
-                  <span>Sign In with Google</span>
-                </button>
               </form>
             )}
-
+ 
             {authTab === 'signup' && (
               <form onSubmit={handleSignUpSubmit} className="space-y-3.5">
                 <div>
@@ -581,15 +778,28 @@ export default function Header({
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase font-mono tracking-wider text-slate-400 mb-1">Password</label>
-                  <input
-                    type="password"
-                    required
-                    placeholder="••••••••"
-                    value={signUpPassword}
-                    onChange={(e) => setSignUpPassword(e.target.value)}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-slate-900 placeholder-slate-400 text-xs font-medium"
-                  />
+                  <label className="block text-[10px] uppercase font-mono tracking-wider text-slate-400 mb-1">Phone Number</label>
+                  <div className="flex gap-1.5">
+                    <select 
+                      value={selectedPhoneCode}
+                      onChange={(e) => setSelectedPhoneCode(e.target.value)}
+                      className="bg-white border border-slate-300 text-slate-900 text-xs rounded-xl px-2.5 py-2 font-bold focus:outline-none focus:ring-1 focus:ring-emerald-400 max-w-[130px]"
+                    >
+                      {countriesList.map((country) => (
+                        <option key={`${country.code}-${country.dialCode}`} value={country.dialCode} className="text-slate-900 bg-white">
+                          {country.flag} {country.dialCode} ({country.code})
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="e.g., 8011223344"
+                      value={signUpPhone}
+                      onChange={(e) => setSignUpPhone(e.target.value.replace(/\D/g, ''))}
+                      className="flex-1 bg-white border border-slate-300 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-slate-900 placeholder-slate-400 text-xs font-semibold"
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-[10px] uppercase font-mono tracking-wider text-slate-400 mb-1">Select Profile Role</label>
@@ -604,6 +814,17 @@ export default function Header({
                       </option>
                     ))}
                   </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase font-mono tracking-wider text-slate-400 mb-1">Password</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={signUpPassword}
+                    onChange={(e) => setSignUpPassword(e.target.value)}
+                    className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-slate-900 placeholder-slate-400 text-xs font-medium"
+                  />
                 </div>
                 <button
                   type="submit"

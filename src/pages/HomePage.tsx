@@ -164,14 +164,6 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
         </div>
  
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] px-3.5 py-1.5 rounded-full uppercase tracking-wider font-semibold shadow-sm"
-          >
-            <Zap className="w-3.5 h-3.5 text-emerald-500" /> High-Performance Business Acceleration
-          </motion.div>
-          
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -220,10 +212,6 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center space-y-3 mb-12">
-            <div className="inline-flex items-center gap-1.5 bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] px-3.5 py-1.5 rounded-full uppercase tracking-wider font-semibold shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-500 animate-pulse" />
-              <span>Salami Abiodun Consult Services</span>
-            </div>
             <h2 className="text-3xl font-black text-slate-900 tracking-tight sm:text-4xl">
               Our Digital Marketing Services
             </h2>
@@ -368,10 +356,6 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
       {/* 2. SHOWCASE: 3 BEST MINI-TOOLS */}
       <section className="py-20 bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3 mb-10">
-          <div className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] px-3.5 py-1.5 rounded-full uppercase tracking-wider font-semibold shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-            <span>Interactive Growth Utilities</span>
-          </div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight sm:text-4xl">
             Test Your Marketing Trajectory
           </h2>
@@ -593,11 +577,6 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-8">
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] px-4 py-1.5 rounded-full uppercase tracking-widest font-mono font-bold">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Salami Abiodun Consult Agency Platform</span>
-          </div>
-
           <div className="space-y-4 max-w-3xl mx-auto">
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
               Scale Your Company with Salami Abiodun Consult

@@ -77,6 +77,7 @@ export default function App() {
   // Free trial registration states
   const [isFreeTrialOpen, setIsFreeTrialOpen] = useState(false);
   const [trialInitialEmail, setTrialInitialEmail] = useState('');
+  const [isClientSignUpOnly, setIsClientSignUpOnly] = useState(false);
 
   // Load database items whenever current user changes (sign in, sign out, or role changes)
   useEffect(() => {
@@ -311,11 +312,17 @@ export default function App() {
         notifications={notifications}
         onMarkNotificationsRead={markAllNotificationsRead}
         isAuthModalOpen={isAuthOpen}
-        setIsAuthModalOpen={setIsAuthOpen}
+        setIsAuthModalOpen={(open) => {
+          setIsAuthOpen(open);
+          if (!open) {
+            setIsClientSignUpOnly(false);
+          }
+        }}
         authTab={authTab}
         setAuthTab={setAuthTab}
         isAdminAuth={isAdminAuth}
         setIsAdminAuth={setIsAdminAuth}
+        isClientSignUpOnly={isClientSignUpOnly}
       />
 
       {/* ACTIVE SESSION WORKSPACE LINK BANNER */}
@@ -555,6 +562,7 @@ export default function App() {
         onClose={() => setIsThankYouOpen(false)}
         apptDetails={thankYouAppt}
         onSignUpTrigger={() => {
+          setIsClientSignUpOnly(true);
           setAuthTab('signup');
           setIsAuthOpen(true);
         }}
