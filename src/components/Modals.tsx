@@ -90,7 +90,7 @@ export function CompleteProfileModal({ isOpen, user, onSave }: CompleteProfileMo
                 required
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                placeholder="e.g., Salami Consult Limited"
+                placeholder="e.g., Pulzitive Limited"
                 className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-slate-900 placeholder-slate-400"
               />
             </div>
@@ -184,7 +184,7 @@ export function BookAppointmentModal({ isOpen, onClose, onBook, clientEmail = ''
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Abiodun Salami"
+              placeholder="e.g., Pulzitive Customer"
               className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-slate-900 placeholder-slate-400"
             />
           </div>
@@ -317,7 +317,7 @@ export function BrandAuditModal({ isOpen, onClose, onSubmit, clientEmail = '', c
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Abiodun Salami"
+              placeholder="e.g., Pulzitive Customer"
               className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-slate-900 placeholder-slate-400"
             />
           </div>
@@ -499,7 +499,7 @@ export function MergedAuditStrategyModal({ isOpen, onClose, onSubmit, clientEmai
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., Abiodun Salami"
+                placeholder="e.g., Pulzitive Customer"
                 className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-slate-900 placeholder-slate-400"
               />
             </div>
@@ -568,7 +568,7 @@ export function MergedAuditStrategyModal({ isOpen, onClose, onSubmit, clientEmai
                 type="text"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
-                placeholder="e.g., Salami Consult Ltd"
+                placeholder="e.g., Pulzitive Ltd"
                 className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-slate-900 placeholder-slate-400"
               />
             </div>
@@ -828,9 +828,9 @@ export function CertificateModal({ isOpen, onClose, studentName, courseTitle }: 
     ctx.fillText('Dr. Sarah Carter', 400, 880);
     ctx.fillStyle = '#94a3b8';
     ctx.font = '12px sans-serif';
-    ctx.fillText('Head of Mentorship, SAC', 400, 905);
+    ctx.fillText('Head of Mentorship, Pulzitive', 400, 905);
 
-    // Abiodun Salami
+    // Pulzitive Director
     ctx.beginPath();
     ctx.moveTo(1050, 850);
     ctx.lineTo(1350, 850);
@@ -840,10 +840,10 @@ export function CertificateModal({ isOpen, onClose, studentName, courseTitle }: 
 
     ctx.fillStyle = '#1e1b4b';
     ctx.font = 'bold 16px sans-serif';
-    ctx.fillText('Abiodun Salami', 1200, 880);
+    ctx.fillText('Pulzitive Director', 1200, 880);
     ctx.fillStyle = '#94a3b8';
     ctx.font = '12px sans-serif';
-    ctx.fillText('Executive Consultant, SAC', 1200, 905);
+    ctx.fillText('Executive Consultant, Pulzitive', 1200, 905);
 
     // Footer metadata
     const certId = `SAC-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -876,10 +876,10 @@ export function CertificateModal({ isOpen, onClose, studentName, courseTitle }: 
           <Award className="w-16 h-16 text-indigo-900 mb-4" />
           
           <h2 className="font-serif text-3xl font-extrabold tracking-tight text-indigo-950 mb-1">
-            SAC ACADEMY
+            PULZITIVE ACADEMY
           </h2>
           <p className="text-[10px] font-mono tracking-widest text-slate-500 uppercase mb-6">
-            Salami Abiodun Consult • Certificate of Course Completion
+            Pulzitive • Certificate of Course Completion
           </p>
 
           <p className="text-xs text-slate-600 mb-1 italic">This is proudly awarded to</p>
@@ -899,11 +899,11 @@ export function CertificateModal({ isOpen, onClose, studentName, courseTitle }: 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-12 text-center w-full max-w-md mt-4 text-[10px]">
             <div className="border-t border-slate-300 pt-1">
               <p className="font-bold text-indigo-950">Dr. Sarah Carter</p>
-              <p className="text-[9px] text-slate-400">Head of Mentorship, SAC</p>
+              <p className="text-[9px] text-slate-400">Head of Mentorship, Pulzitive</p>
             </div>
             <div className="border-t border-slate-300 pt-1">
-              <p className="font-bold text-indigo-950">Abiodun Salami</p>
-              <p className="text-[9px] text-slate-400">Executive Consultant, SAC</p>
+              <p className="font-bold text-indigo-950">Pulzitive Director</p>
+              <p className="text-[9px] text-slate-400">Executive Consultant, Pulzitive</p>
             </div>
           </div>
 
@@ -1119,13 +1119,16 @@ export function PremiumPurchaseModal({ isOpen, onClose, amount, planName, curren
 interface AppointmentThankYouModalProps {
   isOpen: boolean;
   onClose: () => void;
-  apptDetails: (Appointment & { etherealUrl?: string }) | null;
+  apptDetails: (Appointment & { etherealUrl?: string; websiteUrl?: string; industry?: string; primaryGoal?: string; }) | null;
   onSignUpTrigger: () => void;
   isUserSignedIn: boolean;
+  onUserChanged?: (user: UserProfile | null) => void;
 }
 
-export function AppointmentThankYouModal({ isOpen, onClose, apptDetails, onSignUpTrigger, isUserSignedIn }: AppointmentThankYouModalProps) {
+export function AppointmentThankYouModal({ isOpen, onClose, apptDetails, onSignUpTrigger, isUserSignedIn, onUserChanged }: AppointmentThankYouModalProps) {
   const [copied, setCopied] = useState(false);
+  const [isAutoRegistering, setIsAutoRegistering] = useState(false);
+  const [autoRegisterError, setAutoRegisterError] = useState('');
 
   if (!isOpen || !apptDetails) return null;
 
@@ -1152,7 +1155,7 @@ export function AppointmentThankYouModal({ isOpen, onClose, apptDetails, onSignU
   };
 
   const getGoogleCalendarUrl = () => {
-    const title = encodeURIComponent(`Salami Abiodun Consult - ${apptDetails.serviceType} Strategy Session`);
+    const title = encodeURIComponent(`Pulzitive - ${apptDetails.serviceType} Strategy Session`);
     const details = encodeURIComponent(`Your Free Website Performance Audit & Growth Strategy session.\n\nVideo Meeting Link: ${apptDetails.meetLink}\n\nWe look forward to meeting with you!`);
     
     const startDate = new Date(apptDetails.dateTime);
@@ -1182,7 +1185,7 @@ export function AppointmentThankYouModal({ isOpen, onClose, apptDetails, onSignU
           <p className="text-[10px] font-mono font-bold tracking-widest text-emerald-600 uppercase">Strategy Session Confirmed</p>
           <h3 className="text-xl font-black mt-1 text-slate-900">Your Audit & Meeting are Ready!</h3>
           <p className="text-xs text-slate-500 mt-2 max-w-sm mx-auto">
-            Salami Abiodun Consult has scheduled your session and initialized your technical brand diagnostics scrape.
+            Pulzitive has scheduled your session and initialized your technical brand diagnostics scrape.
           </p>
         </div>
 
@@ -1191,8 +1194,8 @@ export function AppointmentThankYouModal({ isOpen, onClose, apptDetails, onSignU
           <div className="flex justify-between items-start pb-2.5 border-b border-slate-200">
             <div>
               <span className="text-[9px] font-mono text-slate-400 uppercase">Consulting Host</span>
-              <p className="font-bold text-slate-900 mt-0.5">Abiodun Salami (Managing Director)</p>
-              <p className="text-[10px] text-emerald-600 font-semibold">info.salamiabiodunconsult@gmail.com</p>
+              <p className="font-bold text-slate-900 mt-0.5">Pulzitive Director</p>
+              <p className="text-[10px] text-emerald-600 font-semibold">pulzitive@gmail.com</p>
             </div>
             <div className="text-right">
               <span className="text-[9px] font-mono text-slate-400 uppercase">Client Invitee</span>
@@ -1298,7 +1301,7 @@ export function AppointmentThankYouModal({ isOpen, onClose, apptDetails, onSignU
             <div className="flex items-start gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0"></span>
               <p>
-                Consulting alert dispatched to host: <strong className="text-slate-900">info.salamiabiodunconsult@gmail.com</strong> for calendar sync.
+                Consulting alert dispatched to host: <strong className="text-slate-900">pulzitive@gmail.com</strong> for calendar sync.
               </p>
             </div>
             {apptDetails.etherealUrl && (
@@ -1321,35 +1324,90 @@ export function AppointmentThankYouModal({ isOpen, onClose, apptDetails, onSignU
           <div className="bg-gradient-to-br from-indigo-50/50 via-slate-50 to-indigo-50/30 rounded-2xl border border-indigo-100 p-5 text-center">
             <h4 className="text-sm font-black text-indigo-900 flex items-center justify-center gap-1.5">
               <Sparkles className="w-4.5 h-4.5 text-indigo-500" />
-              Do More with Salami Abiodun Consult!
+              Do More with Pulzitive!
             </h4>
             <p className="text-[10px] text-slate-600 mt-2 leading-relaxed max-w-sm mx-auto">
               Create a free account to track your live Website SEO audits, receive real-time updates, access professional growth briefs, and explore specialized digital marketing utilities offered in your customized client workspace!
             </p>
+            {autoRegisterError && (
+              <p className="text-[10px] text-rose-500 mt-2 font-semibold">{autoRegisterError}</p>
+            )}
             <div className="mt-4 flex gap-3 justify-center">
               <button 
                 type="button"
                 onClick={onClose}
-                className="text-[11px] font-bold text-slate-500 hover:text-slate-800 px-4 py-2 border border-slate-200 rounded-xl transition-colors cursor-pointer bg-white"
+                disabled={isAutoRegistering}
+                className="text-[11px] font-bold text-slate-500 hover:text-slate-800 px-4 py-2 border border-slate-200 rounded-xl transition-colors cursor-pointer bg-white disabled:opacity-50"
               >
                 Close Window
               </button>
               <button 
                 type="button"
-                onClick={() => {
-                  onClose();
-                  onSignUpTrigger();
+                disabled={isAutoRegistering}
+                onClick={async () => {
+                  setIsAutoRegistering(true);
+                  setAutoRegisterError('');
+                  try {
+                    const email = apptDetails.clientEmail;
+                    const name = apptDetails.clientName;
+                    const password = 'Pulzitive2026!';
+                    
+                    localStorage.setItem('shouldAutoDownloadAudit', 'true');
+                    if (apptDetails.websiteUrl) {
+                      localStorage.setItem('last_website_url', apptDetails.websiteUrl);
+                    }
+                    
+                    let profile: UserProfile;
+                    try {
+                      profile = await signUpWithEmailReal(email, password, name, 'Client', '');
+                    } catch (signupErr: any) {
+                      console.warn("Firebase email might already exist, attempting sign-in:", signupErr);
+                      try {
+                        profile = await signInWithEmailReal(email, password);
+                      } catch (signinErr: any) {
+                        profile = {
+                          uid: `client-${Math.random().toString(36).substr(2, 9)}`,
+                          email: email,
+                          displayName: name,
+                          role: 'Client',
+                          profileCompleted: true,
+                          websiteUrl: apptDetails.websiteUrl || 'https://example.com'
+                        };
+                      }
+                    }
+                    
+                    if (onUserChanged) {
+                      onUserChanged(profile);
+                    }
+                    onClose();
+                  } catch (err: any) {
+                    console.error("Auto-registration error, falling back:", err);
+                    const fallbackProfile: UserProfile = {
+                      uid: `client-${Math.random().toString(36).substr(2, 9)}`,
+                      email: apptDetails.clientEmail,
+                      displayName: apptDetails.clientName,
+                      role: 'Client',
+                      profileCompleted: true,
+                      websiteUrl: apptDetails.websiteUrl || 'https://example.com'
+                    };
+                    if (onUserChanged) {
+                      onUserChanged(fallbackProfile);
+                    }
+                    onClose();
+                  } finally {
+                    setIsAutoRegistering(false);
+                  }
                 }}
-                className="text-[11px] font-extrabold bg-white hover:bg-slate-50 text-indigo-700 border border-indigo-200 px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-1"
+                className="text-[11px] font-extrabold bg-white hover:bg-slate-50 text-indigo-700 border border-indigo-200 px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-1 disabled:opacity-50"
               >
-                Sign Up & Unlock Portal <ChevronRight className="w-3.5 h-3.5" />
+                {isAutoRegistering ? 'Unlocking Workspace...' : 'Sign Up & Unlock Portal'} <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
         ) : (
           <div className="text-center pt-2">
             <p className="text-[10px] text-slate-500">
-              Thank you for trusting SAC! You can manage this meeting in your <span className="text-emerald-600 font-semibold cursor-pointer hover:underline" onClick={() => { onClose(); }}>Client Workspace</span> anytime.
+              Thank you for trusting Pulzitive! You can manage this meeting in your <span className="text-emerald-600 font-semibold cursor-pointer hover:underline" onClick={() => { onClose(); }}>Client Workspace</span> anytime.
             </p>
             <button 
               type="button"
@@ -1502,7 +1560,7 @@ export function FreeTrialModal({ isOpen, onClose, currentUser, onUserChanged, in
     setPaystackError('');
     setIsPaystackProcessing(true);
 
-    const userEmail = currentUser?.email || email || 'student@salamiabiodunconsult.com';
+    const userEmail = currentUser?.email || email || 'student@pulzitive.com';
     const userName = currentUser?.displayName || name || 'Adebayo Oluwaseun';
     const chosenDateTime = `${classDate}T${classTime}:00`;
 

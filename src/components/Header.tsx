@@ -478,7 +478,7 @@ export default function Header({
                   className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer transition-all shadow-md"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
-                  <span>Join Now</span>
+                  <span>Start</span>
                 </button>
               </div>
             ) : (
@@ -592,7 +592,7 @@ export default function Header({
                 }}
                 className="block w-full text-center px-3 py-2.5 text-xs font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl cursor-pointer shadow-md transition-colors"
               >
-                Join Now
+                Start
               </button>
             </div>
           ) : (
@@ -631,9 +631,9 @@ export default function Header({
 
             {/* Modal Header */}
             <div className="flex items-center gap-3">
-              <Logo size="sm" />
+              <Logo size="sm" showText={false} />
               <div>
-                <h3 className="text-lg font-black text-white leading-none">Access SAC Ecosystem</h3>
+                <h3 className="text-lg font-black text-white leading-none">Access Pulzitive Ecosystem</h3>
                 <p className="text-[10px] text-gray-400 mt-1">Live Firestore portal and course workspaces</p>
               </div>
             </div>
@@ -675,7 +675,7 @@ export default function Header({
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                Join Now
+                Start
               </button>
             </div>
  
@@ -688,7 +688,7 @@ export default function Header({
                     <div>
                       <h4 className="font-bold text-amber-200">Domain Authorization Required!</h4>
                       <p className="text-[10px] text-amber-300/90 mt-1 leading-relaxed">
-                        This custom domain (<span className="font-mono text-white underline">salamiabiodunconsult.github.io</span>) has not yet been authorized in your Firebase Project's Settings.
+                        This custom domain (<span className="font-mono text-white underline">pulzitive.github.io</span>) has not yet been authorized in your Firebase Project's Settings.
                       </p>
                     </div>
                   </div>
@@ -699,7 +699,7 @@ export default function Header({
                        <li>Open the <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline font-semibold hover:text-emerald-300">Firebase Console</a>.</li>
                        <li>Go to <span className="font-semibold text-slate-200">Authentication &gt; Settings</span> tab.</li>
                        <li>Scroll down to <span className="font-semibold text-slate-200">Authorized domains</span> and click <span className="font-semibold text-slate-200">Add domain</span>.</li>
-                       <li>Add: <span className="font-mono text-white bg-slate-800 px-1 py-0.5 rounded">salamiabiodunconsult.github.io</span></li>
+                       <li>Add: <span className="font-mono text-white bg-slate-800 px-1 py-0.5 rounded">pulzitive.github.io</span></li>
                      </ol>
                   </div>
                 </div>
@@ -836,7 +836,7 @@ export default function Header({
                   ) : (
                     <UserPlus className="w-3.5 h-3.5" />
                   )}
-                  <span>Join Now / Create Account</span>
+                  <span>Start / Create Account</span>
                 </button>
               </form>
             )}

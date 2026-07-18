@@ -16,7 +16,7 @@ export default function TermsPage() {
           Terms of Use
         </h1>
         <p className="text-xs text-slate-400 max-w-xl mx-auto">
-          Last Updated: July 11, 2026. Please read these Terms of Use carefully before using Salami Abiodun Consult (SAC) services and digital academy portals.
+          Last Updated: July 11, 2026. Please read these Terms of Use carefully before using Pulzitive services and digital academy portals.
         </p>
       </div>
 
@@ -57,7 +57,7 @@ export default function TermsPage() {
               Acceptance of Terms
             </h2>
             <p className="text-xs text-slate-300 leading-relaxed">
-              By accessing Salami Abiodun Consult (SAC) web portals, requesting integrated SEO/brand audits, or enrolling in our digital marketing Academy learning hub, you acknowledge that you have read, understood, and agreed to be bound by these Terms of Use. If you do not agree, you are not authorized to access these materials.
+              By accessing Pulzitive web portals, requesting integrated SEO/brand audits, or enrolling in our digital marketing Academy learning hub, you acknowledge that you have read, understood, and agreed to be bound by these Terms of Use. If you do not agree, you are not authorized to access these materials.
             </p>
           </section>
 
@@ -93,7 +93,7 @@ export default function TermsPage() {
               Payments, Refunds & Access Fees
             </h2>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Course fees and consulting session bookings are indicated in Nigerian Naira (NGN) or USD equivalence. All transactions processed via Paystack are final. Salami Abiodun Consult maintains a 7-day conditional refund policy on standard digital course materials, provided less than 15% of the syllabus content has been consumed.
+              Course fees and consulting session bookings are indicated in Nigerian Naira (NGN) or USD equivalence. All transactions processed via Paystack are final. Pulzitive maintains a 7-day conditional refund policy on standard digital course materials, provided less than 15% of the syllabus content has been consumed.
             </p>
           </section>
 
@@ -104,7 +104,7 @@ export default function TermsPage() {
               Proprietary Resource Vault Licences
             </h2>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Templates, digital checklists, and SEO audit structures purchased from the SAC Marketplace are licensed to you for internal, non-transferable, commercial or personal use. Re-selling, syndicating, or redistributing SAC Resource Vault properties is strictly prohibited.
+              Templates, digital checklists, and SEO audit structures purchased from the Pulzitive Marketplace are licensed to you for internal, non-transferable, commercial or personal use. Re-selling, syndicating, or redistributing Pulzitive Resource Vault properties is strictly prohibited.
             </p>
           </section>
 
@@ -115,7 +115,7 @@ export default function TermsPage() {
               Limitation of Liability
             </h2>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Salami Abiodun Consult delivers digital campaign advice, SEO audit reports, and EdTech training materials on an "as-is" and "as-available" basis. While our digital marketing audits are based on professional, standard metrics, we do not guarantee specific financial results, lead counts, or Google search ranking positions.
+              Pulzitive delivers digital campaign advice, SEO audit reports, and EdTech training materials on an "as-is" and "as-available" basis. While our digital marketing audits are based on professional, standard metrics, we do not guarantee specific financial results, lead counts, or Google search ranking positions.
             </p>
           </section>
 
@@ -123,7 +123,7 @@ export default function TermsPage() {
 
         {/* Support Footer */}
         <div className="bg-slate-900/10 border border-slate-900 rounded-2xl p-5 text-center text-xs text-slate-500">
-          <p>Any concerns regarding these service terms can be discussed with Salami Abiodun Consult Support at <strong className="text-slate-300">info.salamiabiodunconsult@gmail.com</strong>.</p>
+          <p>Any concerns regarding these service terms can be discussed with Pulzitive Support at <strong className="text-slate-300">pulzitive@gmail.com</strong>.</p>
         </div>
 
       </div>

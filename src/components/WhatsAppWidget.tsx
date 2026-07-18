@@ -20,13 +20,13 @@ export default function WhatsAppWidget() {
     {
       id: 'welcome-1',
       sender: 'bot',
-      text: "Hello! Welcome to Salami Abiodun Consult (SAC). 🤝",
+      text: "Hello! Welcome to Pulzitive! 🤝",
       time: getCurrentTime()
     },
     {
       id: 'welcome-2',
       sender: 'bot',
-      text: "I am your virtual WhatsApp Assistant. Ask me anything about our Digital Marketing, SEO, Web Design services, or SAC Academy. How can I assist you today?",
+      text: "I am your virtual WhatsApp Assistant. Ask me anything about our Digital Marketing, SEO, Web Design services, or Pulzitive Academy. How can I assist you today?",
       time: getCurrentTime()
     }
   ]);
@@ -75,21 +75,21 @@ export default function WhatsAppWidget() {
       const textLower = userText.toLowerCase();
 
       if (textLower.includes('service') || textLower.includes('offer') || textLower.includes('do you do') || textLower.includes('digital marketing')) {
-        replyText = "At SAC, we engineer conversion-optimized landing pages, manage high-growth programmatic Google/Meta ad funnels, structure local SEO schemas, and execute comprehensive brand audits that turn traffic into recurring client revenues.";
+        replyText = "At Pulzitive, we engineer conversion-optimized landing pages, manage high-growth programmatic Google/Meta ad funnels, structure local SEO schemas, and execute comprehensive brand audits that turn traffic into recurring client revenues.";
       } else if (textLower.includes('seo') || textLower.includes('search') || textLower.includes('rank') || textLower.includes('google search')) {
         replyText = "Our SEO services focus on keyword targeting, local schema structure, mobile-responsive layout performance, and content hierarchy tuning. We've helped portfolios scale search indexing and improve organic traffic by up to 92%!";
       } else if (textLower.includes('audit') || textLower.includes('free audit') || textLower.includes('site audit')) {
         replyText = "We offer a 100% Free Site & SEO Audit! Click the 'Request Free Site Audit' button on our homepage, enter your details, and our technical director will examine your search indexing constraints.";
       } else if (textLower.includes('academy') || textLower.includes('course') || textLower.includes('learn') || textLower.includes('tek12')) {
-        replyText = "SAC EdTech Academy (TeK12) provides premium gamified digital skills learning. Students learn React, TypeScript, and digital strategy with personal mentorship, active XP leaderboards, and accredited diplomas.";
-      } else if (textLower.includes('who') || textLower.includes('director') || textLower.includes('founder') || textLower.includes('salami')) {
-        replyText = "Salami Abiodun Consult (SAC) is led by our Managing Director, Abiodun Salami, integrating premium digital advertising with our high-caliber STEAM technical learning portals.";
+        replyText = "Pulzitive EdTech Academy provides premium gamified digital skills learning. Students learn React, TypeScript, and digital strategy with personal mentorship, active XP leaderboards, and accredited diplomas.";
+      } else if (textLower.includes('who') || textLower.includes('director') || textLower.includes('founder') || textLower.includes('pulzitive')) {
+        replyText = "Pulzitive is led by our Director, integrating premium digital advertising with our high-caliber STEAM technical learning portals.";
       } else if (textLower.includes('price') || textLower.includes('cost') || textLower.includes('paystack') || textLower.includes('fee')) {
         replyText = "We offer flexible pricing options! You can view our premium digital packages and academy subscription pricing tier models directly in our pricing portal. All payments are securely routed via Paystack.";
       } else if (textLower.includes('contact') || textLower.includes('phone') || textLower.includes('email') || textLower.includes('office')) {
-        replyText = "You can contact our consultancy desk via email at info.salamiabiodunconsult@gmail.com. Alternatively, click the link below to initiate an active direct WhatsApp session with one of our specialized team members!";
+        replyText = "You can contact our consultancy desk via email at pulzitive@gmail.com. Alternatively, click the link below to initiate an active direct WhatsApp session with one of our specialized team members!";
       } else {
-        replyText = "Interesting question! As SAC's digital consult specialist, I recommend exploring our Google/Meta ad plans or free SEO audits to boost your business. Ask me about: 'Services', 'SEO Strategy', 'Free Audit', or 'Tech Academy'!";
+        replyText = "Interesting question! As Pulzitive's digital consult specialist, I recommend exploring our Google/Meta ad plans or free SEO audits to boost your business. Ask me about: 'Services', 'SEO Strategy', 'Free Audit', or 'Tech Academy'!";
       }
 
       setMessages(prev => [...prev, {
@@ -105,8 +105,8 @@ export default function WhatsAppWidget() {
   const sampleFAQs = [
     "What digital marketing services do you offer?",
     "How can I get a Free SEO Audit?",
-    "Tell me about the SAC Tech Academy",
-    "How do I contact SAC MD Abiodun Salami?"
+    "Tell me about the Pulzitive Tech Academy",
+    "How do I contact Pulzitive?"
   ];
 
   return (
@@ -123,10 +123,10 @@ export default function WhatsAppWidget() {
             <div className="bg-[#075e54] text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-slate-900 border border-emerald-400 flex items-center justify-center font-black text-xs text-white uppercase shrink-0">
-                  SAC
+                  PZ
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm tracking-wide">SAC Consult Chatbot</h3>
+                  <h3 className="font-bold text-sm tracking-wide">Pulzitive Chatbot</h3>
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span className="text-[10px] text-emerald-100 font-mono">Answers Frequently Asked Questions</span>

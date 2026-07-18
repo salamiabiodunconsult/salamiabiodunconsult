@@ -160,239 +160,130 @@ const setLocalStorage = <T>(key: string, value: T): void => {
 // Initial simulated mock datasets
 const INITIAL_COURSES: Course[] = [
   {
-    id: 'course-1',
-    title: 'Advanced AI & Large Language Models',
-    description: 'Learn prompt engineering, retrieval augmented generation (RAG), and build generative apps.',
-    longDescription: 'A deep-dive course teaching full-stack developers how to leverage Gemini models, construct conversational bots, analyze unstructured multimedia data, and deploy serverless AI nodes.',
-    duration: '8 Weeks',
-    price: 15000,
-    level: 'Advanced',
-    syllabus: ['Intro to LLMs & Prompt Tuning', 'Vector DBs & RAG Architectures', 'Gemini APIs & Multimodality', 'Building Conversational Agents', 'Enterprise Deployment & Monitoring']
-  },
-  {
-    id: 'course-2',
-    title: 'Digital Marketing & Growth Ads Accelerator',
-    description: 'Master SEO, SEM, content funnels, and programmatic ad campaigns.',
-    longDescription: 'Perfect for business owners, clients, and aspiring marketers. Learn to manage high-yield Google Ads, optimize web conversion pathways, design brand strategy briefs, and lead dynamic social campaigns.',
+    id: 'dm-seo-mastery',
+    title: 'SEO Mastery & Technical Auditing',
+    description: 'Master on-page optimization, semantic content clusters, technical indexing audits, and core web vitals speed calibration.',
+    longDescription: 'Our flagship SEO service and training course. Learn how to perform deep crawler audits, resolve indexing blocks, calibrate schema configurations, pair display fonts like Montserrat for superior readability, and command first-page Google rankings.',
     duration: '6 Weeks',
-    price: 12000,
-    level: 'Intermediate',
-    syllabus: ['Conversion Rate Optimization', 'Search Engine Optimization (SEO)', 'Google & Meta Ads Blueprint', 'Email Automated Funnels', 'Growth Analytics & KPI Tracking']
-  },
-  {
-    id: 'course-3',
-    title: 'Full-Stack React & Vite Development',
-    description: 'Build premium responsive single page applications with React, Tailwind, and Node.',
-    longDescription: 'Our hallmark Edtech course. Create modern desktop-first and mobile-responsive dashboards, utilize motion transitions, orchestrate React state flows, and deploy serverless microservices.',
-    duration: '10 Weeks',
-    price: 30000,
-    level: 'Intermediate',
-    syllabus: ['ES6+ & React Core Foundations', 'Tailwind CSS Layout Mastery', 'React Hooks & State Orchestration', 'Vite & Frontend Deployment', 'Firebase & Serverless DB Binding']
-  },
-  {
-    id: 'course-kidztech-scratch',
-    title: 'Scratch Coding & Creative Animation',
-    description: 'Introduction to logic, algorithms, and computational thinking for kids aged 5-11 using visual Scratch block programming.',
-    longDescription: 'A fun, interactive course designed to introduce kids to visual block coding. Children will build animated stories, interactive greeting cards, and multi-level video games while mastering foundational programming concepts like loops, variables, and conditionals.',
-    duration: '4 Weeks',
-    price: 8000,
-    level: 'Beginner',
-    syllabus: ['Getting Started with Scratch Interface', 'Sprites, Costumes, and Backdrops', 'Variables, Loops, and Logic Bricks', 'Creating Animations & Sound Effects', 'Publishing and Sharing Your First Game']
-  },
-  {
-    id: 'course-kidztech-web',
-    title: 'Frontend Web Design for Young Innovators',
-    description: 'Learn to structure, design, and launch live, beautiful websites using modern HTML5, CSS3, and simple JavaScript.',
-    longDescription: 'Designed for children and teenagers to bridge the gap between visual coding and real-world software creation. Students will learn how web browsers interpret files, style web pages with colors and custom layouts, and create interactive personal portals.',
-    duration: '6 Weeks',
-    price: 12000,
-    level: 'Beginner',
-    syllabus: ['Understanding the Web & HTML5 tags', 'Styling with CSS3 Colors & Fonts', 'Creating Layouts and Navigation Panels', 'Introduction to JS and Click Interactions', 'Deploying your Personal Website Live']
-  },
-  {
-    id: 'course-kidztech-python',
-    title: 'Python Programming: Scripting & Turtle Graphics',
-    description: 'Master text-based coding with Python through graphical design, mathematical arts, and text-based adventure games.',
-    longDescription: 'The ultimate transition course from block coding to pure text-based programming. Students use Python\'s Turtle library to create rich graphics, learn scripting syntax, manage lists, and design basic command-line utilities.',
-    duration: '8 Weeks',
     price: 15000,
     level: 'Intermediate',
-    syllabus: ['Python Syntax & Variable Assignations', 'Turtle Graphics: Drawing Shapes & Patterns', 'Decision-Making with Conditional Logic', 'Functions, Lists, and Loop Controls', 'Building a text-based Adventure RPG']
+    syllabus: [
+      'Keyword Intent & Competitor Content Crawls',
+      'On-Page Semantic Optimization & HTML Schema',
+      'Google Search Console & Indexation Audits',
+      'Core Web Vitals & Lazy-Loading Performance',
+      'Backlink Outreach & Page Authority Building'
+    ],
+    category: 'SEO & Search Services',
+    ageRange: 'Adults & Professionals',
+    image: 'https://images.unsplash.com/photo-1571721795195-a2ca2d3370a9?q=80&w=600&auto=format&fit=crop',
+    tags: ['Google Search', 'SEO Audits', 'Organic Growth'],
+    points: '+1200 XP'
   },
   {
-    id: 'course-techkids-mobile',
-    title: 'Mobile App Builder: MIT App Inventor',
-    description: 'Build, test, and deploy functional Android and iOS mobile applications utilizing drag-and-drop logical blocks.',
-    longDescription: 'A highly interactive course utilizing MIT App Inventor to teach mobile systems architecture. Kids learn how to utilize mobile phone sensors (accelerometer, GPS, camera), manage databases, and bundle functional APKs to share with friends and family.',
-    duration: '6 Weeks',
-    price: 10000,
-    level: 'Intermediate',
-    syllabus: ['MIT App Inventor Setup & Screen Layouts', 'UI Components: Buttons, Sound, and Canvas', 'Utilizing Phone Sensors & GPS Trackers', 'Data Storage with TinyDB', 'Compiling and Testing APK Packages']
-  },
-  {
-    id: 'course-techkids-roblox',
-    title: '3D Game Design in Roblox Studio',
-    description: 'Design realistic 3D game environments and script interactive elements using Lua scripting in Roblox Studio.',
-    longDescription: 'Turn players into builders! This course teaches kids how to build multi-dimensional obstacles, design terrain assets, and write simple Lua scripts inside Roblox Studio to trigger events, spawn power-ups, and manage player scores.',
+    id: 'dm-social-ads',
+    title: 'Paid Social Ads & Conversion Funnels',
+    description: 'Design, configure, and scale high-yielding programmatic campaigns on Facebook, Instagram, and TikTok.',
+    longDescription: 'Perfect for business owners and consultants. Learn to navigate the Meta Ads Manager, integrate the Conversions API, build Custom and Lookalike audiences, write compelling direct-response copy, and run split-testing structures.',
     duration: '8 Weeks',
     price: 18000,
-    level: 'Intermediate',
-    syllabus: ['Roblox Studio Interface & Part Modeling', 'Designing Immersive 3D Terrains & Obbys', 'Lua Scripting Foundations: Variables & Events', 'Manipulating Game Physics & Spawn Zones', 'Publishing & Sharing Games on Roblox']
-  },
-  {
-    id: 'course-techkids-robotics',
-    title: 'Robotics & Internet of Things (IoT)',
-    description: 'Introduction to electronic circuits, smart sensor microcontrollers, and micro-python scripting.',
-    longDescription: 'Learn how hardware meets software. Students explore virtual circuit diagrams, program simulated microcontrollers (like Arduino or Micro:bit), and understand how IoT smart appliances process ambient environmental variables.',
-    duration: '8 Weeks',
-    price: 22000,
     level: 'Advanced',
-    syllabus: ['Introduction to Electrical Circuits & Resistors', 'Microcontroller Pin Architectures', 'Reading Analog & Digital Sensor Outputs', 'Programming with Micro:bit Block Editor', 'Simulating Smart Home Automations']
+    syllabus: [
+      'Meta pixel & Conversions API Configurations',
+      'High-Impact Ad Creatives & Videography',
+      'Direct-Response Copywriting & Ad Hooks',
+      'Multivariate A/B Testing & CBO Strategies',
+      'Scaling Ad Sets Without Audience Fatigue'
+    ],
+    category: 'Paid Social Services',
+    ageRange: 'Adults & Professionals',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop',
+    tags: ['Meta Ads', 'Lead Funnels', 'TikTok Ads'],
+    points: '+1500 XP'
   },
   {
-    id: 'course-graphics-design',
-    title: 'Graphics Design & Brand Identity',
-    description: 'Learn to design professional visuals, logos, marketing flyers, and digital artwork with Figma and Photoshop.',
-    longDescription: 'Master the principles of typography, visual hierarchy, color theory, and software tools to create stunning, print-ready, and web-ready designs for any brand or agency.',
-    duration: '6 Weeks',
-    price: 10000,
-    level: 'Beginner',
-    syllabus: ['Introduction to Design Principles', 'Working with Vector Graphics in Figma', 'Raster Editing & Photo Manipulation', 'Brand Identity, Style Guides, and Logos', 'Creating Social Media & Print Portfolio Assets']
-  },
-  {
-    id: 'course-video-editing',
-    title: 'Video Editing & Motion Graphics',
-    description: 'Master non-linear video editing, sound engineering, transition design, and cinematic cuts.',
-    longDescription: 'Turn raw footage into professional cinematic stories, marketing videos, and social media reels. Learn advanced techniques of keyframing, motion graphics, audio mastering, and color grading.',
+    id: 'dm-google-ppc',
+    title: 'Google Search Ads & Performance Max',
+    description: 'Dominate Google search results for commercial intent queries with advanced PPC bidding architectures.',
+    longDescription: 'An elite Google Ads service and learning guide. Learn to target high-intent search terms, configure negative keyword sheets, build responsive search ads, master Smart Bidding algorithms, and build complete Performance Max campaigns.',
     duration: '8 Weeks',
-    price: 15000,
-    level: 'Intermediate',
-    syllabus: ['Intro to Timeline Editing & Cuts', 'Advanced Transitions & Keyframing', 'Color Grading & Lighting Corrections', 'Sound Design & Royalty-Free Audio Syncing', 'Rendering and Optimizing for Social Media']
+    price: 20000,
+    level: 'Advanced',
+    syllabus: [
+      'PPC Campaign Frameworks & Match Types',
+      'Responsive Search Ads & Quality Scores',
+      'Smart Bidding: Target CPA & ROAS Configs',
+      'Negative Keyword Silos & Negative Lists',
+      'Performance Max & Display Retargeting'
+    ],
+    category: 'PPC Search Services',
+    ageRange: 'Adults & Professionals',
+    image: 'https://images.unsplash.com/photo-1542744094-3a31f103e35f?q=80&w=600&auto=format&fit=crop',
+    tags: ['Google PPC', 'PMax Campaigns', 'High Intent'],
+    points: '+1600 XP'
   },
   {
-    id: 'course-intro-ai',
-    title: 'Introduction to Artificial Intelligence',
-    description: 'De-mystify AI neural networks, cognitive computing, machine learning, and its impact on the modern workforce.',
-    longDescription: 'Designed for beginners to grasp the core concepts of artificial intelligence. Discover how data trains models, explore everyday use-cases, and learn to navigate AI-driven environments ethically.',
-    duration: '4 Weeks',
-    price: 8000,
-    level: 'Beginner',
-    syllabus: ['What is AI? History & Core Concepts', 'Supervised vs. Unsupervised Machine Learning', 'How Neural Networks Process Information', 'AI Tools in Everyday Life & Business', 'Ethics, Safety, and the Future of AI']
-  },
-  {
-    id: 'course-prompt-engineering',
-    title: 'Prompt Engineering & Generative AI Mastery',
-    description: 'Master advanced instruction engineering, persona frameworks, chain-of-thought prompting, and direct API logic orchestration.',
-    longDescription: 'Learn how to communicate effectively with large language models. Master techniques like few-shot prompting, system instructions, and RAG to build intelligent workflows and optimize prompt-driven systems.',
+    id: 'dm-email-crm',
+    title: 'CRM Pipelines & Email Automation',
+    description: 'Maximize customer lifetime value with automated retention sequences, drip campaigns, and behavior triggers.',
+    longDescription: 'Turn cold traffic into recurring revenue. Master CRM integrations, behavior-driven email segmentation, cart abandonment triggers, promotional newsletter copywriting, and deliverability protocols (DKIM/SPF/DMARC).',
     duration: '6 Weeks',
     price: 12000,
     level: 'Intermediate',
-    syllabus: ['Language Model Architecture & Tokens', 'Zero-Shot, Few-Shot, and Role Prompting', 'Chain-of-Thought & Iterative Prompts', 'Automating Tasks with Multi-Modal Models', 'Building Production-Ready AI Agents']
+    syllabus: [
+      'Email List Building & High-Converting Lead Magnets',
+      'Customer Retention Journeys & Drip Flows',
+      'Abandonment Automation & Behavior Triggers',
+      'SMTP Servers, DKIM/DMARC & Deliverability Checklists',
+      'CRM Pipeline CRM Automations & Leads Management'
+    ],
+    category: 'Email Services',
+    ageRange: 'Adults & Professionals',
+    image: 'https://images.unsplash.com/photo-1557200134-90327ee9fafa?q=80&w=600&auto=format&fit=crop',
+    tags: ['Klaviyo', 'CRM Pipelines', 'Automation'],
+    points: '+1000 XP'
   },
   {
-    id: 'reception-tynker',
-    title: 'Tynker Game-Based Coding',
-    description: 'A highly interactive platform that teaches kids to code through game design, modding Minecraft, and flying drones. It offers both block-based coding for younger beginners and real text-based coding (Python, JavaScript) for older kids.',
-    longDescription: 'Curated visual sandbox playground to practice block-coding concepts. Kids learn logic, loops, variables, and game physics through engaging play.',
-    duration: 'Self-Paced Sandbox',
-    price: 0,
-    level: 'Reception',
+    id: 'dm-content-ai',
+    title: 'Content Marketing & AI-Powered Copywriting',
+    description: 'Deploy authority editorial plans and scale premium copywriting pipelines using customized Google Gemini workflows.',
+    longDescription: 'Learn how to scale content operations without losing your brand voice. Master the AIDA & PAS copywriting frameworks, perform SEO copywriting audits, design high-authority content schedules, and build custom generative prompts.',
+    duration: '4 Weeks',
+    price: 10000,
+    level: 'Beginner',
     syllabus: [
-      'Interactive Block-Based Coding Layout',
-      'Minecraft Mods & Character Controls',
-      'Simple Game Physics & Logic Chains',
-      'Advanced Scripting & Flight Modules'
+      'Copywriting Principles: AIDA & PAS Frameworks',
+      'Blogging, Case Studies & Content Calendars',
+      'Custom Gemini API Prompt Engineering for Copy',
+      'Social Storytelling & Graphic Visual Copy',
+      'Brand Tone Guardrails & Editorial Guidelines'
     ],
-    url: 'https://www.tynker.com/',
-    ageRange: 'Ages 5-16',
-    category: 'Game Design & Block Coding',
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop',
-    tags: ['Interactive', 'Free Access', 'Visual'],
-    points: '+100 XP'
+    category: 'Content Services',
+    ageRange: 'Adults & Professionals',
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=600&auto=format&fit=crop',
+    tags: ['AI Writing', 'Content Strategy', 'Gemini Prompts'],
+    points: '+800 XP'
   },
   {
-    id: 'reception-swift',
-    title: 'Apple Swift Playgrounds',
-    description: 'Created by Apple, this interactive puzzle app/website teaches kids ages 6+ how to write real Swift code (the language used to build iOS apps) by guiding a character through an amazing 3D world.',
-    longDescription: 'Learn real text-based iOS Swift syntax. Move characters through beautiful 3D landscapes, solving complex spatial puzzles using loops, functions, and standard object-oriented operations.',
-    duration: 'Self-Paced Sandbox',
-    price: 0,
-    level: 'Reception',
+    id: 'dm-cro-analytics',
+    title: 'CRO Diagnostics & Growth Analytics',
+    description: 'Stop wasting traffic. Track and optimize landing pages and conversion actions with GA4 and Hotjar.',
+    longDescription: 'The ultimate web intelligence and optimization training. Learn how to set up clean Google Analytics 4 tracking events, deploy triggers via Google Tag Manager, interpret session recordings, and eliminate form checkout friction.',
+    duration: '6 Weeks',
+    price: 15000,
+    level: 'Advanced',
     syllabus: [
-      'Introduction to 3D Coding Sandbox',
-      'Writing Commands & Standard Loops',
-      'Custom Functions & Logic Branches',
-      'Debugging Algorithms in real-time'
+      'Google Analytics 4 & Custom Conversion Events',
+      'GTM Tag Configurations & Conversion Triggers',
+      'Session Recording Audits & Friction Scoring',
+      'Landing Page UX/UI Optimization Secrets',
+      'Structured Hypotheses & Multivariate Testing'
     ],
-    url: 'https://www.apple.com/swift/playgrounds/',
-    ageRange: 'Ages 6+',
-    category: 'Real Swift Programming',
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop',
-    tags: ['3D Puzzles', 'Free Access', 'iOS Dev'],
-    points: '+150 XP'
-  },
-  {
-    id: 'reception-khan',
-    title: 'Khan Academy Kids',
-    description: 'Perfect for younger children (ages 2-7), this free mobile and web platform uses playful animated characters and games to teach foundational logic, reading, and problem-solving skills to build early digital literacy.',
-    longDescription: 'Provides early computer logic foundations. Guides toddler and pre-school pupils through playful challenges to enhance spatial awareness, math patterns, reading tracks, and cognitive critical thinking.',
-    duration: 'Self-Paced Sandbox',
-    price: 0,
-    level: 'Reception',
-    syllabus: [
-      'Early Logic & Pattern Matching',
-      'Spatial Reasoning & Color Shapes',
-      'Phonics & Creative Story Paths',
-      'Foundational Problem Solving Drills'
-    ],
-    url: 'https://khankids.zendesk.com/hc/en-us',
-    ageRange: 'Ages 2-7',
-    category: 'Early Digital Literacy',
-    image: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600&auto=format&fit=crop',
-    tags: ['Fun Games', 'Free Access', 'Logic'],
-    points: '+80 XP'
-  },
-  {
-    id: 'reception-codemonkey',
-    title: 'CodeMonkey Coding Adventures',
-    description: 'A world-class game-based learning environment where younger kids write actual lines of code to catch bananas, save the world, and solve increasingly difficult computer science puzzles.',
-    longDescription: 'Get real experience writing CoffeeScript or Python code. Help monkeys solve levels by using parameters, index sequences, objects, and function triggers in a gamified, safe learning ecosystem.',
-    duration: 'Self-Paced Sandbox',
-    price: 0,
-    level: 'Reception',
-    syllabus: [
-      'Introduction to CodeMonkey Sandbox',
-      'Controlling Sprites with Syntax Code',
-      'Looping Iterations & Banana Arrays',
-      'Designing & Hosting Personal Puzzles'
-    ],
-    url: 'https://www.codemonkey.com/',
-    ageRange: 'Ages 5-14',
-    category: 'Python & Block Coding',
-    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=600&auto=format&fit=crop',
-    tags: ['Gamified', 'Free Access', 'Syntax'],
-    points: '+120 XP'
-  },
-  {
-    id: 'reception-codemoji',
-    title: 'Codemoji Web Builder',
-    description: 'Uses fun, intuitive emojis to teach students (ages 8-14) the foundational building blocks of modern web development, including HTML, CSS, and Javascript, in an engaging visual sandbox.',
-    longDescription: 'The ultimate web builder for young minds. Build clean pages by matching emoticons to HTML layout syntax tags, modify CSS styling, and watch your emojis compile into standard web code instantly.',
-    duration: 'Self-Paced Sandbox',
-    price: 0,
-    level: 'Reception',
-    syllabus: [
-      'Understanding HTML Structure with Emojis',
-      'Styling Web Objects with Visual Tags',
-      'Setting Custom Font & Background Colors',
-      'Previewing and Live Compiling Web Pages'
-    ],
-    url: 'https://www.codemoji.com/',
-    ageRange: 'Ages 8-14',
-    category: 'Web Design & Emoji Coding',
-    image: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=600&auto=format&fit=crop',
-    tags: ['Web Design', 'Free Access', 'Emojis'],
-    points: '+110 XP'
+    category: 'Web Intelligence',
+    ageRange: 'Adults & Professionals',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop',
+    tags: ['GA4', 'Tag Manager', 'Heatmapping'],
+    points: '+1200 XP'
   }
 ];
 
@@ -401,7 +292,7 @@ if (!localStorage.getItem(LOCAL_STORAGE_KEYS.USERS)) {
   const defaultUsers: Record<string, UserProfile> = {
     'student-demo': {
       uid: 'student-demo',
-      email: 'student@sac.com',
+      email: 'student@pulzitive.com',
       displayName: 'Adebayo Oluwaseun',
       role: 'Student',
       profileCompleted: true,
@@ -414,16 +305,16 @@ if (!localStorage.getItem(LOCAL_STORAGE_KEYS.USERS)) {
     },
     'parent-demo': {
       uid: 'parent-demo',
-      email: 'parent@sac.com',
+      email: 'parent@pulzitive.com',
       displayName: 'Chioma Obi',
       role: 'Parent',
       profileCompleted: true,
       phone: '+2348022334455',
-      children: ['student@sac.com']
+      children: ['student@pulzitive.com']
     },
     'teacher-demo': {
       uid: 'teacher-demo',
-      email: 'teacher@sac.com',
+      email: 'teacher@pulzitive.com',
       displayName: 'Mr. Babajide Alao',
       role: 'Teacher',
       profileCompleted: true,
@@ -431,7 +322,7 @@ if (!localStorage.getItem(LOCAL_STORAGE_KEYS.USERS)) {
     },
     'mentor-demo': {
       uid: 'mentor-demo',
-      email: 'mentor@sac.com',
+      email: 'mentor@pulzitive.com',
       displayName: 'Dr. Sarah Carter',
       role: 'Mentor',
       profileCompleted: true,
@@ -440,17 +331,17 @@ if (!localStorage.getItem(LOCAL_STORAGE_KEYS.USERS)) {
     },
     'client-demo': {
       uid: 'client-demo',
-      email: 'client@sac.com',
+      email: 'client@pulzitive.com',
       displayName: 'Abiodun Salami',
       role: 'Client',
       profileCompleted: true,
       phone: '+2348055667788',
-      companyName: 'Salami Consult Limited'
+      companyName: 'Pulzitive Limited'
     },
     'admin-demo': {
       uid: 'admin-demo',
-      email: 'info.salamiabiodunconsult@gmail.com',
-      displayName: 'SAC Global Admin',
+      email: 'pulzitive@gmail.com',
+      displayName: 'Pulzitive Admin',
       role: 'Admin',
       profileCompleted: true,
       phone: '+2348011112222'
@@ -499,20 +390,20 @@ if (!localStorage.getItem(LOCAL_STORAGE_KEYS.COMMISSIONS)) {
     {
       id: 'comm-1',
       userId: 'teacher-demo',
-      amount: 6000, // 20% of 30,000 React course
+      amount: 4000, // 20% of 20,000 Google Search Ads course
       type: 'Teacher',
-      courseId: 'course-3',
-      courseTitle: 'Full-Stack React & Vite Development',
+      courseId: 'dm-google-ppc',
+      courseTitle: 'Google Search Ads & Performance Max',
       studentName: 'Adebayo Oluwaseun',
       timestamp: new Date(Date.now() - 86400000).toISOString()
     },
     {
       id: 'comm-2',
       userId: 'mentor-demo',
-      amount: 1500, // 10% of 15,000 AI Course
+      amount: 1500, // 10% of 15,000 SEO course
       type: 'Mentor',
-      courseId: 'course-1',
-      courseTitle: 'Advanced AI & Large Language Models',
+      courseId: 'dm-seo-mastery',
+      courseTitle: 'SEO Mastery & Technical Auditing',
       studentName: 'Adebayo Oluwaseun',
       timestamp: new Date(Date.now() - 43200000).toISOString()
     }
@@ -571,9 +462,9 @@ if (!localStorage.getItem(LOCAL_STORAGE_KEYS.SPONSORSHIPS)) {
       studentId: 'student-demo',
       studentName: 'Adebayo Oluwaseun',
       studentEmail: 'student@sac.com',
-      courseId: 'course-1',
-      courseTitle: 'Advanced AI & Large Language Models',
-      reason: 'I am a highly motivated computer science undergraduate currently seeking micro-sponsorship to master AI and support local agricultural crop-disease tech projects.',
+      courseId: 'dm-seo-mastery',
+      courseTitle: 'SEO Mastery & Technical Auditing',
+      reason: 'I am highly motivated to master SEO technical audits to optimize small local business growth in my community.',
       status: 'pending'
     }
   ];
@@ -862,10 +753,10 @@ export const signInWithGoogleSimulated = async (role: UserRole = 'Student'): Pro
     'Mentor': 'Dr. Alabi',
     'Sponsor': 'Alhaji Salami',
     'Client': 'Abiodun Salami',
-    'Admin': 'Salami Abiodun Admin'
+    'Admin': 'Pulzitive Admin'
   };
   const name = roleNameMap[role] || 'Sandbox Explorer';
-  const email = `${role.toLowerCase().replace(' ', '')}@sac-ecosystem-sim.com`;
+  const email = `${role.toLowerCase().replace(' ', '')}@pulzitive-ecosystem-sim.com`;
   
   const newProfile: UserProfile = {
     uid: mockUid,

@@ -41,7 +41,7 @@ export default function App() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [audits, setAudits] = useState<BrandAudit[]>([]);
   const [notifications, setNotifications] = useState<Array<{ id: string; text: string; read: boolean }>>([
-    { id: 'n-welcome', text: "Welcome to Salami Abiodun Consult! Access your personal client dashboard or academy workspace by logging in.", read: false }
+    { id: 'n-welcome', text: "Welcome to Pulzitive! Access your personal client dashboard or academy workspace by logging in.", read: false }
   ]);
 
   // Toast Notifications
@@ -197,10 +197,20 @@ export default function App() {
     });
     setAppointments(prev => [appt, ...prev]);
 
-    setThankYouAppt(appt);
+    // Attach additional details for auto-signup integration
+    const apptWithAuditDetails = {
+      ...appt,
+      websiteUrl: fields.websiteUrl,
+      industry: fields.industry,
+      primaryGoal: fields.primaryGoal
+    };
+
+    setThankYouAppt(apptWithAuditDetails);
     setIsThankYouOpen(true);
     triggerToast(`Success! SEO metrics compiled (${audit.scores?.seo || 85}%) & strategy meeting booked!`);
-    setActivePage('dashboard');
+    if (currentUser) {
+      setActivePage('dashboard');
+    }
   };
 
   // Save consulting appointment
@@ -217,7 +227,9 @@ export default function App() {
     setThankYouAppt(appt);
     setIsThankYouOpen(true);
     triggerToast(`Appointment booked! Google Meet link created: ${appt.meetLink}`);
-    setActivePage('dashboard');
+    if (currentUser) {
+      setActivePage('dashboard');
+    }
   };
 
   // Enrolling via Paystack Checkout modal trigger
@@ -306,7 +318,7 @@ export default function App() {
           if (user) {
             triggerToast(`Logged into simulated ${user.role} workspace.`);
           } else {
-            triggerToast('Signed out of SAC Portal.');
+            triggerToast('Signed out of Pulzitive Portal.');
           }
         }}
         notifications={notifications}
@@ -567,6 +579,13 @@ export default function App() {
           setIsAuthOpen(true);
         }}
         isUserSignedIn={!!currentUser}
+        onUserChanged={(user) => {
+          setCurrentUser(user);
+          if (user) {
+            triggerToast(`Welcome to Pulzitive! Logged in as ${user.displayName || user.email}.`);
+            setActivePage('dashboard');
+          }
+        }}
       />
 
       <FreeTrialModal
@@ -578,7 +597,7 @@ export default function App() {
           if (user) {
             triggerToast(`Logged into simulated ${user.role} workspace.`);
           } else {
-            triggerToast('Signed out of SAC Portal.');
+            triggerToast('Signed out of Pulzitive Portal.');
           }
         }}
         initialEmail={trialInitialEmail}

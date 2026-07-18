@@ -58,7 +58,7 @@ export default function PortfolioPage({
             Our Elite Client <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600">Portfolio</span>
           </h1>
           <p className="text-sm sm:text-base text-slate-500 max-w-2xl mx-auto leading-relaxed">
-            Discover how Salami Abiodun Consult (SAC) drives exponential growth, ranks industry-leading brands on Page 1 of Google, and designs conversion-engineered lead pipelines.
+            Discover how Pulzitive drives exponential growth, ranks industry-leading brands on Page 1 of Google, and designs conversion-engineered lead pipelines.
           </p>
           
           <div className="pt-4 flex flex-wrap justify-center gap-4">
@@ -214,7 +214,7 @@ export default function PortfolioPage({
           <div className="p-8 bg-slate-50 border border-slate-200 rounded-3xl max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-6 text-left shadow-inner">
             <div className="space-y-2">
               <ShieldCheck className="w-6 h-6 text-emerald-600" />
-              <h4 className="font-bold text-slate-900 text-sm">Salami Consult Guarantee</h4>
+              <h4 className="font-bold text-slate-900 text-sm">Pulzitive Guarantee</h4>
               <p className="text-xs text-slate-500 leading-relaxed">We focus strictly on ROI, clear KPIs, and custom reporting—no ungrounded metrics.</p>
             </div>
             <div className="space-y-2">
@@ -284,7 +284,7 @@ export default function PortfolioPage({
                     </a>
                   </div>
                   <div>
-                    <p className="text-[9px] font-mono text-slate-400 uppercase">Salami Consult Term</p>
+                    <p className="text-[9px] font-mono text-slate-400 uppercase">Pulzitive Term</p>
                     <p className="text-xs font-bold text-slate-900 mt-0.5">{selectedClient.duration}</p>
                   </div>
                   <div className="col-span-2 sm:col-span-1">

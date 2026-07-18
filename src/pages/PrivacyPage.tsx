@@ -16,7 +16,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="text-xs text-slate-400 max-w-xl mx-auto">
-          Last Updated: July 11, 2026. This Privacy Policy details how Salami Abiodun Consult collects, handles, protects, and respects your professional data.
+          Last Updated: July 11, 2026. This Privacy Policy details how Pulzitive collects, handles, protects, and respects your professional data.
         </p>
       </div>
 
@@ -82,7 +82,7 @@ export default function PrivacyPage() {
               How Your Information Is Used
             </h2>
             <p className="text-xs text-slate-300 leading-relaxed">
-              The collected logs are utilized strictly inside Salami Abiodun Consult ecosystems:
+              The collected logs are utilized strictly inside Pulzitive ecosystems:
             </p>
             <ul className="space-y-1.5 text-xs text-slate-400 list-none pl-1">
               <li className="flex items-start gap-1.5">
@@ -99,7 +99,7 @@ export default function PrivacyPage() {
               </li>
               <li className="flex items-start gap-1.5">
                 <ChevronRight className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>Sending regular agency updates, campaign digests, and system notices via the SAC Insights Desk.</span>
+                <span>Sending regular agency updates, campaign digests, and system notices via the Pulzitive Insights Desk.</span>
               </li>
             </ul>
           </section>
@@ -111,7 +111,7 @@ export default function PrivacyPage() {
               Security & Storage Guardrails
             </h2>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Your security is paramount. Salami Abiodun Consult uses Google Cloud Firestore security rules that strictly isolate personal data records. Unauthorized read or write requests to subscriber collections, student cohort logs, and proprietary brand audit records are automatically blocked by cloud configurations.
+              Your security is paramount. Pulzitive uses Google Cloud Firestore security rules that strictly isolate personal data records. Unauthorized read or write requests to subscriber collections, student cohort logs, and proprietary brand audit records are automatically blocked by cloud configurations.
             </p>
           </section>
 
@@ -143,7 +143,7 @@ export default function PrivacyPage() {
               Your Privacy Rights & Controls
             </h2>
             <p className="text-xs text-slate-300 leading-relaxed">
-              You can query, modify, or completely delete your personal workspace profile at any point. To opt-out from the SAC Insights newsletter, you can unsubscribe instantly or email our privacy representative at <a href="mailto:info.salamiabiodunconsult@gmail.com" className="text-emerald-400 hover:underline">info.salamiabiodunconsult@gmail.com</a>.
+              You can query, modify, or completely delete your personal workspace profile at any point. To opt-out from the Pulzitive Insights newsletter, you can unsubscribe instantly or email our privacy representative at <a href="mailto:pulzitive@gmail.com" className="text-emerald-400 hover:underline">pulzitive@gmail.com</a>.
             </p>
           </section>
 
@@ -151,7 +151,7 @@ export default function PrivacyPage() {
 
         {/* Support Footer */}
         <div className="bg-slate-900/10 border border-slate-900 rounded-2xl p-5 text-center text-xs text-slate-500">
-          <p>Have questions about this Privacy Policy? Reach out directly to Salami Abiodun Consult via WhatsApp at <strong className="text-slate-300">+234 815 422 4426</strong>.</p>
+          <p>Have questions about this Privacy Policy? Reach out directly to Pulzitive via WhatsApp at <strong className="text-slate-300">+234 815 422 4426</strong>.</p>
         </div>
 
       </div>

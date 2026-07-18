@@ -93,60 +93,60 @@ const workspacesList = [
 
 const techAdsList = [
   {
-    courseId: 'course-1',
-    badge: 'FLAGSHIP AI',
-    title: 'Advanced AI & Large Language Models',
-    desc: 'Master prompt engineering, Gemini API integration, vector databases, and Retrieval-Augmented Generation (RAG) to build enterprise-grade cognitive apps.',
-    icon: Sparkles,
-    color: 'from-purple-500/10 to-indigo-500/5',
-    btnLabel: 'Enroll in AI Course',
+    courseId: 'dm-seo-mastery',
+    badge: 'ORGANIC POWER',
+    title: 'SEO Mastery & Technical Auditing',
+    desc: 'Master keyword strategy, content clusters, local SEO, technical crawling indexation fixes, page architecture setups, and schema configurations to command Page 1 organic visibility.',
+    icon: Search,
+    color: 'from-emerald-500/10 to-teal-500/5',
+    btnLabel: 'Enroll in SEO Mastery',
     features: [
-      'Gemini 1.5 Pro & Multimodality',
-      'Vector DBs & RAG Architectures',
-      'AI Agent orchestration'
+      'Crawl Audits & Schema Markup',
+      'Montserrat & Web Font Geometries',
+      'Semantic Optimization Workflows'
+    ],
+    stats: {
+      duration: '6 Weeks',
+      xp: '+1200 XP',
+      level: 'Intermediate'
+    }
+  },
+  {
+    courseId: 'dm-social-ads',
+    badge: 'ACQUISITION SCALER',
+    title: 'Paid Social Ads & Conversion Funnels',
+    desc: 'Build high-converting Meta and TikTok campaigns. Setup custom pixels, implement Conversions API triggers, write direct response ad copy, and scale creative testing architectures.',
+    icon: Zap,
+    color: 'from-purple-500/10 to-indigo-500/5',
+    btnLabel: 'Enroll in Paid Social Ads',
+    features: [
+      'Conversions API Tracking',
+      'AIDA Copywriting Secrets',
+      'Custom & Lookalike Audiences'
     ],
     stats: {
       duration: '8 Weeks',
-      xp: '+1200 XP',
+      xp: '+1500 XP',
       level: 'Advanced'
     }
   },
   {
-    courseId: 'course-3',
-    badge: 'HALLMARK WEB',
-    title: 'Full-Stack React & Vite Development',
-    desc: 'Build highly responsive, desktop-first and mobile-optimized web portals. Learn state management, custom animation libraries, and serverless Node.js endpoints.',
-    icon: Code,
-    color: 'from-emerald-500/10 to-teal-500/5',
-    btnLabel: 'Enroll in React Course',
-    features: [
-      'Vite + React 18+ fast bundling',
-      'Tailwind CSS layout mastery',
-      'Firebase serverless database binding'
-    ],
-    stats: {
-      duration: '10 Weeks',
-      xp: '+1500 XP',
-      level: 'Intermediate'
-    }
-  },
-  {
-    courseId: 'course-2',
-    badge: 'GROWTH TECH',
-    title: 'Digital Marketing & Growth Ads Accelerator',
-    desc: 'Launch high-yielding programmatic ad campaigns. Master Google Ads, Meta conversion funnels, SEO strategy audits, and automated CRM pipelines.',
-    icon: Zap,
+    courseId: 'dm-google-ppc',
+    badge: 'COMMERCIAL INTENT',
+    title: 'Google Search Ads & Performance Max',
+    desc: 'Design high-yield Google Search PPC and Performance Max campaigns. Master keyword bidding, negative keyword siloing, Smart Bidding optimization, and retargeting systems.',
+    icon: TrendingUp,
     color: 'from-amber-500/10 to-orange-500/5',
-    btnLabel: 'Enroll in Ads Course',
+    btnLabel: 'Enroll in Google Ads PPC',
     features: [
-      'Google & Meta Ads Blueprint',
-      'Conversion Rate Optimization (CRO)',
-      'Growth Analytics & KPI Tracking'
+      'Responsive Search Ads (RSA)',
+      'Smart Bidding: Target CPA/ROAS',
+      'Performance Max & Display Ads'
     ],
     stats: {
-      duration: '6 Weeks',
-      xp: '+900 XP',
-      level: 'Intermediate'
+      duration: '8 Weeks',
+      xp: '+1600 XP',
+      level: 'Advanced'
     }
   }
 ];
@@ -1310,204 +1310,99 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
             
             <div className="text-center space-y-3 mb-12">
-              <div className="inline-flex items-center gap-1.5 bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] px-3.5 py-1.5 rounded-full uppercase tracking-wider font-semibold shadow-sm">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-500 animate-pulse" />
-                <span>SAC Interactive Ecosystem</span>
+              <div className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] px-3.5 py-1.5 rounded-full uppercase tracking-wider font-semibold shadow-sm">
+                <Award className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+                <span>Interactive Learning Command Center</span>
               </div>
               <h2 className="text-3xl font-black text-slate-900 tracking-tight sm:text-4xl">
-                Access Multi-Role Workspaces
+                The Pulzitive Digital Academy Dashboard
               </h2>
               <p className="text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
-                Simulate and explore our tailored dashboards designed specifically for each stakeholder in the SAC Tech Academy. Click a workspace to open its respective dashboard.
+                Step into a unified command center designed specifically for modern digital marketing learners. Combine coursework, live toolkit simulators, and student resources in a single interface.
               </p>
             </div>
 
-            {/* Controllable Auto-Slide Workspace Carousel */}
-            <div className="relative max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-500" />
               
-              {/* Carousel Tab bar (quick select) */}
-              <div className="flex flex-wrap justify-center gap-2 mb-8 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
-                {workspacesList.map((ws, index) => {
-                  const Icon = ws.icon;
-                  const isActive = currentWsIndex === index;
-                  return (
-                    <button
-                      key={ws.role}
-                      onClick={() => {
-                        setCurrentWsIndex(index);
-                        setIsAutoPlaying(false); // Pause auto-play when user manually overrides
-                      }}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        isActive 
-                          ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/50' 
-                          : 'text-slate-500 hover:text-slate-800'
-                      }`}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">{ws.title.split(' ')[0]}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Main Sliding Component */}
-              <div 
-                className="relative bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-lg group overflow-hidden"
-                onMouseEnter={() => setIsAutoPlaying(false)}
-                onMouseLeave={() => setIsAutoPlaying(true)}
-              >
-                {/* Active Indicator Highlight Border */}
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-500" />
-
-                {/* Left/Right Controls overlay */}
-                <button
-                  onClick={() => {
-                    setCurrentWsIndex((prev) => (prev - 1 + workspacesList.length) % workspacesList.length);
-                    setIsAutoPlaying(false);
-                  }}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 p-2.5 rounded-full border border-slate-200 transition-all cursor-pointer z-10 opacity-0 group-hover:opacity-100"
-                  aria-label="Previous Workspace"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => {
-                    setCurrentWsIndex((prev) => (prev + 1) % workspacesList.length);
-                    setIsAutoPlaying(false);
-                  }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 p-2.5 rounded-full border border-slate-200 transition-all cursor-pointer z-10 opacity-0 group-hover:opacity-100"
-                  aria-label="Next Workspace"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-
-                {/* Animated Workspace Slide */}
-                <motion.div
-                  key={currentWsIndex}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center"
-                >
-                  {/* Left Column: Role Details & Accent Badges */}
-                  <div className="md:col-span-5 space-y-5 text-left">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3.5 rounded-2xl bg-indigo-50 text-indigo-600 shadow-inner border border-indigo-100">
-                        {React.createElement(workspacesList[currentWsIndex].icon, { className: "w-7 h-7" })}
-                      </div>
-                      <div>
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full">
-                          {currentUser?.role === workspacesList[currentWsIndex].role ? 'Your Role' : 'Simulation Mode'}
-                        </span>
-                        <h3 className="text-xl font-black text-slate-900 mt-0.5">
-                          {workspacesList[currentWsIndex].title}
-                        </h3>
-                      </div>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                {/* Left side info */}
+                <div className="md:col-span-6 space-y-5 text-left">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 shadow-inner border border-emerald-100">
+                      <GraduationCap className="w-8 h-8" />
                     </div>
-
-                    <p className="text-sm font-semibold text-emerald-600">
-                      {workspacesList[currentWsIndex].desc}
-                    </p>
-
-                    <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                      Simulate this stakeholder dashboard to experience our fully connected technical academy. Complete quizzes, claim commissions, or review progress reports instantly.
-                    </p>
-
-                    <button
-                      onClick={() => handleWorkspaceAccess(workspacesList[currentWsIndex].role)}
-                      className="w-full sm:w-auto px-6 py-3 rounded-xl text-xs font-black cursor-pointer transition-all shadow-md bg-slate-900 hover:bg-slate-800 text-white flex items-center justify-center gap-2 active:scale-[0.98]"
-                    >
-                      <span>Launch {workspacesList[currentWsIndex].title}</span>
-                      <ArrowRight className="w-4 h-4 text-emerald-400" />
-                    </button>
-                  </div>
-
-                  {/* Right Column: Dynamic Features Checklist */}
-                  <div className="md:col-span-7 bg-slate-50 border border-slate-150 p-6 rounded-2xl flex flex-col justify-between h-full min-h-[220px]">
-                    <div className="space-y-4 text-left">
-                      <p className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-indigo-600">
-                        Key Workspace Benefits
-                      </p>
-                      
-                      <ul className="space-y-3">
-                        {workspacesList[currentWsIndex].features.map((feat, fIdx) => (
-                          <li key={fIdx} className="flex items-start gap-3 text-xs text-slate-700 font-medium leading-relaxed font-sans">
-                            <span className="p-0.5 rounded bg-emerald-100 text-emerald-700 shrink-0 mt-0.5">
-                              <Check className="w-3.5 h-3.5" />
-                            </span>
-                            <span>{feat}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Fun Interactive Sandbox Status Badge */}
-                    <div className="border-t border-slate-200/60 pt-4 mt-6 flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                      <span className="flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
-                        SYSTEM: ONLINE
+                    <div>
+                      <span className="text-[9px] font-mono font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full">
+                        Primary Student Hub
                       </span>
-                      <span>SECURE SANDBOX ROUTING</span>
+                      <h3 className="text-xl font-black text-slate-900 mt-1">
+                        Academy Dashboard
+                      </h3>
                     </div>
                   </div>
-                </motion.div>
-              </div>
 
-              {/* Slider Controls Bar (Dots + Play/Pause) */}
-              <div className="flex items-center justify-between mt-6 px-4">
-                {/* Auto Play status info */}
-                <span className="text-[10px] text-slate-400 font-medium font-mono flex items-center gap-1">
-                  {isAutoPlaying ? (
-                    <>
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      Auto-playing (Hover to pause)
-                    </>
-                  ) : (
-                    <>
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                      Paused manually
-                    </>
-                  )}
-                </span>
+                  <p className="text-xs sm:text-sm font-semibold text-emerald-600">
+                    A comprehensive cockpit for learning and execution.
+                  </p>
 
-                {/* Indicators / Dot navigation */}
-                <div className="flex items-center gap-2">
-                  {workspacesList.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setCurrentWsIndex(index);
-                        setIsAutoPlaying(false);
-                      }}
-                      className={`h-2 rounded-full transition-all cursor-pointer ${
-                        currentWsIndex === index 
-                          ? 'w-6 bg-slate-800' 
-                          : 'w-2 bg-slate-300 hover:bg-slate-400'
-                      }`}
-                      aria-label={`Go to slide ${index + 1}`}
-                    />
-                  ))}
+                  <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                    Skip complex multi-role setups. Our consolidated dashboard grants direct access to your registered course syllabus, micro-tools trackers, regional student support channels, and real-time community leaderboards.
+                  </p>
+
+                  <button
+                    onClick={() => handleWorkspaceAccess('Student')}
+                    className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-black cursor-pointer transition-all shadow-md bg-slate-900 hover:bg-slate-800 text-white flex items-center justify-center gap-2 active:scale-[0.98] hover:scale-[1.01]"
+                  >
+                    <span>Launch Academy Dashboard</span>
+                    <ArrowRight className="w-4 h-4 text-emerald-400" />
+                  </button>
                 </div>
 
-                {/* Play / Pause Toggle Button */}
-                <button
-                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-                  className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl border border-slate-200 cursor-pointer transition-all"
-                  aria-label={isAutoPlaying ? "Pause autoplay" : "Start autoplay"}
-                >
-                  {isAutoPlaying ? (
-                    <>
-                      <Pause className="w-3 h-3 text-slate-600" />
-                      <span className="hidden sm:inline">Pause</span>
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-3 h-3 text-slate-600 fill-slate-600" />
-                      <span className="hidden sm:inline">Play</span>
-                    </>
-                  )}
-                </button>
+                {/* Right side features grid */}
+                <div className="md:col-span-6 bg-slate-50 border border-slate-150 p-6 sm:p-8 rounded-2xl space-y-5 text-left">
+                  <p className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-indigo-600">
+                    Included Student Workspaces
+                  </p>
+                  
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-3 text-xs text-slate-700 font-medium">
+                      <span className="p-1 rounded bg-emerald-100 text-emerald-700 mt-0.5">
+                        <Check className="w-3.5 h-3.5" />
+                      </span>
+                      <div>
+                        <p className="font-bold text-slate-800">Syllabus Progress & XP Logs</p>
+                        <p className="text-[10px] text-slate-500">Earn points for lessons completed and redeem physical certificates.</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3 text-xs text-slate-700 font-medium">
+                      <span className="p-1 rounded bg-emerald-100 text-emerald-700 mt-0.5">
+                        <Check className="w-3.5 h-3.5" />
+                      </span>
+                      <div>
+                        <p className="font-bold text-slate-800">Digital Marketing Toolkit</p>
+                        <p className="text-[10px] text-slate-500">Live Ad Copy builders, SEO page crawlers, Campaign ROI calculators, and UTM builders.</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3 text-xs text-slate-700 font-medium">
+                      <span className="p-1 rounded bg-emerald-100 text-emerald-700 mt-0.5">
+                        <Check className="w-3.5 h-3.5" />
+                      </span>
+                      <div>
+                        <p className="font-bold text-slate-800">Regional Student Aid Form</p>
+                        <p className="text-[10px] text-slate-500">Request up to ₦25,000 value internet stipend or device micro-financing directly.</p>
+                      </div>
+                    </li>
+                  </ul>
+
+                  <div className="border-t border-slate-200/60 pt-4 mt-4 flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+                      SECURE HUB
+                    </span>
+                    <span>PULSE ON DATA • IMPACT ON BRAND</span>
+                  </div>
+                </div>
               </div>
 
             </div>
@@ -3065,7 +2960,7 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                 <input
                   type="text"
                   required
-                  placeholder="e.g., Salami Abiodun"
+                  placeholder="e.g., Pulzitive Student"
                   value={customName}
                   onChange={(e) => setCustomName(e.target.value)}
                   className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-slate-800 text-xs font-medium"
@@ -3076,7 +2971,7 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                 <input
                   type="email"
                   required
-                  placeholder="e.g., salami@example.com"
+                  placeholder="e.g., student@example.com"
                   value={customEmail}
                   onChange={(e) => setCustomEmail(e.target.value)}
                   className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-slate-800 text-xs font-medium"
@@ -3113,7 +3008,7 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-950 leading-tight">Academy Enrollment Flow</h3>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Salami Abiodun Consult Certification</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Pulzitive Certification</p>
                 </div>
               </div>
               <button
@@ -3257,7 +3152,7 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                         }`}
                       >
                         <span className="block font-bold text-xs text-slate-900">Physical On-Site</span>
-                        <span className="block text-[9px] text-slate-500 mt-1 leading-normal">Hands-on lab at Salami Abiodun Consult.</span>
+                        <span className="block text-[9px] text-slate-500 mt-1 leading-normal">Hands-on lab at Pulzitive.</span>
                         <span className="block text-indigo-600 font-black text-xs mt-2 font-mono">
                           ₦65,000
                         </span>
@@ -3352,7 +3247,7 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                         </p>
                         <p className="flex items-start gap-1.5">
                           <span className="text-emerald-500 font-bold font-mono">✓</span>
-                          <span>We do not store or process card details on Salami Abiodun Consult.</span>
+                          <span>We do not store or process card details on Pulzitive.</span>
                         </p>
                       </div>
 
@@ -3401,7 +3296,7 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white leading-tight">Launch Practice Portal</h3>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Salami Abiodun Consult Sandbox</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Pulzitive Sandbox</p>
                 </div>
               </div>
               <button
@@ -3451,7 +3346,7 @@ export default function AcademyPage({ onEnroll, onSelectPlan, currentUser, onUse
                   <div className="space-y-2">
                     <h4 className="text-sm font-bold text-slate-200">{launchingReceptionCourse.title}</h4>
                     <p className="text-[11px] text-slate-400 leading-relaxed">
-                      You are launching external access to this secure sandbox. Salami Abiodun Consult automatically synchronizes this playground onto your dashboard, ensuring immediate certification logs.
+                      You are launching external access to this secure sandbox. Pulzitive automatically synchronizes this playground onto your dashboard, ensuring immediate certification logs.
                     </p>
                   </div>
 

@@ -10,18 +10,18 @@ export default function PRPage() {
   const articles = [
     {
       id: 'pr-1',
-      title: 'SAC Launches Integrated Full-Stack EdTech Hub & Agency Model',
+      title: 'Pulzitive Launches Integrated Full-Stack EdTech Hub & Agency Model',
       date: 'June 25, 2026',
       badge: 'Launch',
-      summary: 'Today, Salami Abiodun Consult (SAC) formally launched an ecosystem bridging corporate growth advisory with specialized technical learning paths.',
-      content: 'Under this new strategy, clients seeking high-performance search engine rankings and targeted Google/Meta campaigns can partner with certified students from the SAC Academy, cultivating a sustainable recruitment funnel. "This unified approach allows us to deliver optimized business audits while empowering underrepresented talents with industry-grade certifications," noted Executive Consultant Salami Abiodun.'
+      summary: 'Today, Pulzitive formally launched an ecosystem bridging corporate growth advisory with specialized marketing learning paths.',
+      content: 'Under this new strategy, clients seeking high-performance search engine rankings and targeted Google/Meta campaigns can partner with certified students from the Pulzitive Academy, cultivating a sustainable recruitment funnel. "This unified approach allows us to deliver optimized business audits while empowering underrepresented talents with industry-grade certifications," noted Executive Consultant Salami Abiodun.'
     },
     {
       id: 'pr-2',
       title: 'Nigeria Developer Hackathon Announced with ₦1.5M Prize Pool',
       date: 'June 18, 2026',
       badge: 'Hackathon',
-      summary: 'SAC, in collaboration with Babajide Co-Op, is hosting a week-long virtual and physical sprint centered on building server-side AI applications.',
+      summary: 'Pulzitive, in collaboration with Babajide Co-Op, is hosting a week-long virtual and physical sprint centered on building server-side AI applications.',
       content: 'The hackathon challenges student cohorts to develop functional web integrations with Google Gemini models. Best prototypes pass through client audits, and winners receive financial support, cloud hosting credits, and professional mentorship placement.'
     }
   ];
@@ -33,7 +33,7 @@ export default function PRPage() {
       <div className="max-w-4xl mx-auto text-center space-y-3 mb-16">
         <h1 className="text-3xl font-extrabold tracking-tight flex items-center justify-center gap-2">
           <Newspaper className="w-8 h-8 text-emerald-400" />
-          SAC News & Press releases
+          Pulzitive News & Press releases
         </h1>
         <p className="text-xs text-slate-400 max-w-xl mx-auto">
           Read official updates from our executive consultancy, public education initiatives, and technology launches in Nigeria.
@@ -68,8 +68,8 @@ export default function PRPage() {
             </div>
 
             <div className="pt-4 border-t border-slate-800/40 text-[10px] text-slate-500 flex items-center justify-between">
-              <span>Salami Abiodun Consult Press Relations</span>
-              <a href="mailto:info.salamiabiodunconsult@gmail.com" className="hover:text-white transition-colors flex items-center gap-1">
+              <span>Pulzitive Press Relations</span>
+              <a href="mailto:pulzitive@gmail.com" className="hover:text-white transition-colors flex items-center gap-1">
                 Contact Media <ArrowRight className="w-3 h-3" />
               </a>
             </div>

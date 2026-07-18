@@ -8,11 +8,14 @@ import {
   Megaphone, BookOpen, ChevronRight, Award, Users, Shield, 
   BarChart2, Zap, Layout, Play, Briefcase, Download,
   Search, Globe, TrendingUp, ChevronLeft, Calendar, Sparkles,
-  Code, Share2, PenTool
+  Code, Share2, PenTool, Mail, Phone, Tv, Layers, FileText, 
+  Inbox, Image, Clock, MessageSquare, Send, ShoppingBag, Store, 
+  Box, Gift, Headphones, Mic, Video, Heart, MessageCircle
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { clientsList } from '../data/clients';
 import { MiniTools } from '../components/MiniTools';
+import { HeroTypewriter } from '../components/HeroTypewriter';
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
@@ -24,84 +27,274 @@ interface HomePageProps {
 
 const marketingServices = [
   {
-    title: "Search Engine Marketing (SEM)",
-    description: "ROI-driven Paid Search (Google Ads / PPC) campaigns targeting users at high-intent search moments to capture immediate high-value customer acquisitions.",
-    features: ["High-intent PPC bidding strategy & structure", "Continuous A/B copy and landing page matching", "Transparent conversion tracking & ROAS reporting"],
-    iconName: "BarChart2",
-    accent: "emerald",
-    badge: "PAID ACQUISITION",
+    title: "Lead Generation",
+    description: "Multi-channel B2B & B2C customer capture designed to fill pipelines with validated, high-intent opportunities.",
+    features: ["Automated Quiz Funnels", "Verified Contact Scraping", "Instant Lead Routing"],
+    iconName: "TrendingUp",
+    accent: "blue",
+    badge: "ACQUISITION",
+    category: "Acquisition"
   },
   {
-    title: "Web Development",
-    description: "Custom-coded, lightning-fast web applications, high-performance portals, and responsive websites built with modern semantic architectures to convert visitor traffic.",
-    features: ["Responsive Next.js / React / Vite architectures", "SEO-optimized semantic DOM structures", "Custom API & payment integrations (Paystack / Stripe)"],
-    iconName: "Code",
-    accent: "indigo",
-    badge: "SOFTWARE ENGINEERING",
+    title: "Search Engine Marketing",
+    description: "High-ROI paid search campaigns targeting hot search intent to capture ready-to-buy consumers instantly.",
+    features: ["Google Ads Setup & Audits", "Negative Keyword Scrubbing", "ROAS Optimization"],
+    iconName: "Search",
+    accent: "blue",
+    badge: "SEM",
+    category: "Acquisition"
   },
   {
     title: "Social Media Marketing",
-    description: "Strategic social media campaigns, brand audience nurturing, and profile optimizations across Instagram, Meta, Twitter, and LinkedIn to build cohesive online communities.",
-    features: ["Platform Strategy & Target Audience Mapping", "Daily engagement optimization & community management", "Growth analytics, pixel setups, and conversion tracking"],
+    description: "Paid social campaigns on Facebook, Instagram, LinkedIn, and TikTok engineered to drive viral brand engagement.",
+    features: ["Custom Audience Mining", "Meta Pixel / Conversions API", "Ad Creative Testing"],
     iconName: "Share2",
-    accent: "pink",
-    badge: "SOCIAL DOMINANCE",
+    accent: "blue",
+    badge: "PAID SOCIAL",
+    category: "Acquisition"
   },
   {
-    title: "Content Creation (Article, Graphic, Video)",
-    description: "End-to-end multimedia content development featuring SEO-optimized blog articles, scroll-stopping graphic designs, and cinematic short-form video editing.",
-    features: ["High-ranking, long-form editorial articles", "Premium visual graphic assets & conversion ads", "Cinematic video editing (reels, shorts, explainer videos)"],
-    iconName: "PenTool",
-    accent: "violet",
-    badge: "CREATIVE PRODUCTION",
+    title: "Content Marketing",
+    description: "Strategic asset syndication that maps authority-building guides to the exact steps of your customer journey.",
+    features: ["Ebooks & Whitepapers", "Inbound Funnel Mapping", "Multi-platform Syndication"],
+    iconName: "BookOpen",
+    accent: "red",
+    badge: "CONTENT",
+    category: "Acquisition"
   },
   {
-    title: "SEO Ranking Optimization",
-    description: "Deep technical search engine optimization targeting high-value keywords, optimizing site architecture, and building authority to rank higher organically.",
-    features: ["Keyword Strategy & Competitor Audits", "Page Speed & Core Web Vitals", "Structured Schema & Rich Snippets"],
-    iconName: "Search",
-    accent: "indigo",
-    badge: "ORGANIC GROWTH",
+    title: "Email Marketing",
+    description: "Behavior-triggered automated sequences and direct broadcasts that convert subscribers into recurring buyers.",
+    features: ["Welcome Journey Setups", "Cart Abandonment Recovery", "A/B Subject Line Tests"],
+    iconName: "Mail",
+    accent: "green",
+    badge: "EMAIL",
+    category: "Support"
   },
   {
-    title: "Google & Meta Paid Campaigns",
-    description: "Laser-targeted paid digital customer acquisition campaigns engineered across social feeds and Google search networks to maximize lead volume and ROAS.",
-    features: ["High-Converting Ad Copy & Graphics", "Conversion API & Pixel Tracking", "A/B Testing & Audience Mining"],
-    iconName: "Megaphone",
-    accent: "emerald",
-    badge: "PAID MARKETING",
+    title: "Telemarketing",
+    description: "Professional outbound and inbound vocal campaigns to qualify large cold databases and schedule strategy sessions.",
+    features: ["Cold Outreach Scripts", "Inbound Call Routing", "Performance Analytics Logs"],
+    iconName: "Phone",
+    accent: "blue",
+    badge: "OUTBOUND",
+    category: "Acquisition"
   },
   {
-    title: "Conversion Funnel Engineering",
-    description: "Sleek, responsive, lightning-fast landing pages crafted to strip friction and seamlessly turn cold traffic into scheduled sales and bookings.",
-    features: ["High-Performance Custom Layouts", "Interactive Forms & WhatsApp CTA Hooks", "Detailed Funnel Drop-off Analytics"],
-    iconName: "Layout",
-    accent: "cyan",
-    badge: "CONVERSION OPTIMIZATION",
+    title: "Infomercials",
+    description: "Captivating, high-converting video product demonstrations optimized for digital, television, and YouTube feeds.",
+    features: ["Direct Response Scripting", "Product Demo Production", "Visual Hook Engineering"],
+    iconName: "Tv",
+    accent: "blue",
+    badge: "BROADCAST",
+    category: "Acquisition"
   },
   {
-    title: "Local SEO & Directory Schema",
-    description: "Dominate regional search with localized Google Business profile tuning, local citations, and structured geographic schema listings.",
-    features: ["Google Maps Local Pack Ranking", "Geographic Structured Schema Setup", "Multi-directory Citation Syndication"],
-    iconName: "Globe",
-    accent: "amber",
-    badge: "LOCAL CITATION",
-  },
-  {
-    title: "Business Lead Generation Funnels",
-    description: "Automated direct-capture mechanics that combine smart multi-step quiz forms, active lead routing, and immediate email autoresponders.",
-    features: ["Lead Scoring & Routing", "SMS & Email Automation Integrations", "Interactive Qualification Quizzes"],
-    iconName: "TrendingUp",
-    accent: "rose",
-    badge: "LEAD GENERATION",
-  },
-  {
-    title: "Brand Authority Strategy",
-    description: "Comprehensive brand audits and positioning reviews backed by competitive search analysis to build trusted prestige in your market sector.",
-    features: ["Competitor Share-of-Voice Audits", "Unified Visual & Messaging Systems", "Full Performance Growth Blueprints"],
+    title: "Affiliate Marketing",
+    description: "Referral ecosystem setups that incentivize external creators and publishers to sell your software and services.",
+    features: ["Affiliate Program Portals", "Commission Tiers Layout", "Conversion Tracking Audits"],
     iconName: "Award",
-    accent: "violet",
-    badge: "BRAND STRATEGY",
+    accent: "blue",
+    badge: "PARTNERSHIPS",
+    category: "Acquisition"
+  },
+  {
+    title: "Content Creation",
+    description: "Multi-platform visual and text-based assets tailored to represent your company with premium visual consistency.",
+    features: ["Social Post Copy & Gfx", "Cinematic Motion Graphics", "Product Photography Layouts"],
+    iconName: "PenTool",
+    accent: "red",
+    badge: "CREATIVE",
+    category: "Creative"
+  },
+  {
+    title: "Funnel Management",
+    description: "Continuous landing page split-testing, heatmap analysis, and checkout friction removal to elevate conversion rates.",
+    features: ["A/B Conversion Testing", "Friction Dropoff Audits", "Micro-interaction Tuning"],
+    iconName: "Layers",
+    accent: "blue",
+    badge: "FUNNELS",
+    category: "Acquisition"
+  },
+  {
+    title: "Website Development",
+    description: "Stunning, high-performance web applications built on modern frameworks for speed, security, and responsive styling.",
+    features: ["React & Vite Portals", "Responsive Mobile-First UI", "Secure API Integrations"],
+    iconName: "Code",
+    accent: "indigo",
+    badge: "ENGINEERING",
+    category: "Operations"
+  },
+  {
+    title: "Blog Management",
+    description: "End-to-end editorial calendar curation to position your website as the definitive voice in your vertical.",
+    features: ["SEO Keyword Integration", "WordPress & CMS Uploads", "Interlinking Optimizations"],
+    iconName: "FileText",
+    accent: "red",
+    badge: "EDITORIAL",
+    category: "Creative"
+  },
+  {
+    title: "Email Management",
+    description: "Inbox organization, customer ticketing curation, and zero-inbox priority setups to keep lines moving smoothly.",
+    features: ["Spam-Filter Verification", "Canned Response Setup", "Inbox Priority Queuing"],
+    iconName: "Inbox",
+    accent: "green",
+    badge: "INBOX",
+    category: "Support"
+  },
+  {
+    title: "Calendar Management",
+    description: "Meeting coordination, schedule balancing, and automated booking alignments to optimize leadership bandwidth.",
+    features: ["Google Calendar Sync", "Double-Booking Prevention", "Timezone Accommodation"],
+    iconName: "Calendar",
+    accent: "green",
+    badge: "CALENDAR",
+    category: "Support"
+  },
+  {
+    title: "Social Media Management",
+    description: "Daily publishing, audience monitoring, and organic profile scaling across your business profiles.",
+    features: ["Brand Voice Protection", "Follower Engagement Replies", "Growth Statistics Reports"],
+    iconName: "Users",
+    accent: "indigo",
+    badge: "ORGANIC SOCIAL",
+    category: "Operations"
+  },
+  {
+    title: "Graphic Design",
+    description: "High-end visual communication materials from sales decks and branding identity to social banners.",
+    features: ["Brand Style Alignment", "High-Contrast Ad Graphics", "Vector Illustration Assets"],
+    iconName: "Image",
+    accent: "red",
+    badge: "DESIGN",
+    category: "Creative"
+  },
+  {
+    title: "Content Scheduling",
+    description: "Strategic planning and direct queuing of visual and textual resources to capture peak audience attention times.",
+    features: ["Social Scheduling Tools", "Peak Performance Timing", "Multi-platform Alignment"],
+    iconName: "Clock",
+    accent: "indigo",
+    badge: "SCHEDULING",
+    category: "Operations"
+  },
+  {
+    title: "SEO Support",
+    description: "Deep technical audits, localized directory setups, and backend schema markups to drive consistent Google ranking.",
+    features: ["Google Business Profile", "Geographic Schema Markup", "Alt Text & Core Web Vitals"],
+    iconName: "Globe",
+    accent: "green",
+    badge: "SEO",
+    category: "Support"
+  },
+  {
+    title: "Copywriting",
+    description: "Conversion-focused text for ads, sales pages, email sequences, and script files engineered to provoke action.",
+    features: ["AIDA Formula Scripting", "Scroll-Stopping Headlines", "Clear Call-to-Actions"],
+    iconName: "MessageSquare",
+    accent: "red",
+    badge: "COPY",
+    category: "Creative"
+  },
+  {
+    title: "Newsletter Setup",
+    description: "Professional template styling and database segmentation to deliver beautiful weekly insight publications.",
+    features: ["Responsive Email Style", "Subscriber Tag Segments", "Compliance Checklists"],
+    iconName: "Send",
+    accent: "red",
+    badge: "NEWSLETTERS",
+    category: "Creative"
+  },
+  {
+    title: "E-commerce Support",
+    description: "Complete checkout configurations, inventory synchronizations, and order recovery setups for online stores.",
+    features: ["Checkout Friction Audits", "Secure Payment Gateway", "Stock Level Alerts"],
+    iconName: "ShoppingBag",
+    accent: "indigo",
+    badge: "ECOMMERCE",
+    category: "Operations"
+  },
+  {
+    title: "Shopify Management",
+    description: "Liquid theme adjustments, page enhancements, and app integrations to optimize your Shopify ecosystem.",
+    features: ["Shopify App Configuration", "Product Matrix Setup", "Shopify Speed Tuning"],
+    iconName: "Store",
+    accent: "indigo",
+    badge: "SHOPIFY",
+    category: "Operations"
+  },
+  {
+    title: "Amazon Listings",
+    description: "Optimized Amazon A+ content creation, keyword research, and high-quality photography layouts to scale sales.",
+    features: ["Amazon SEO Keywords", "A+ Enhanced Brand Content", "Product Review Strategy"],
+    iconName: "Box",
+    accent: "indigo",
+    badge: "AMAZON",
+    category: "Operations"
+  },
+  {
+    title: "Etsy Management",
+    description: "Bespoke listing layouts, tag optimization, and storefront designs customized for handmade/boutique brands.",
+    features: ["Etsy Tag Optimization", "Storefront Aesthetic Style", "Listing Descriptions Copy"],
+    iconName: "Gift",
+    accent: "indigo",
+    badge: "ETSY",
+    category: "Operations"
+  },
+  {
+    title: "Customer Support",
+    description: "Empathetic and professional customer relations managed via ticketing tools, live chats, and email channels.",
+    features: ["SLA Response Deadlines", "Knowledgebase Development", "Escalation Workflows"],
+    iconName: "Headphones",
+    accent: "green",
+    badge: "SUPPORT",
+    category: "Support"
+  },
+  {
+    title: "Podcast Editing",
+    description: "Crisp and balanced audio engineering, noise reductions, track mixes, and distribution setups.",
+    features: ["Background Noise Cleanup", "ID3 Tag Curation", "Show Notes Production"],
+    iconName: "Mic",
+    accent: "red",
+    badge: "PODCASTS",
+    category: "Creative"
+  },
+  {
+    title: "Video Editing",
+    description: "Engaging and high-energy pacing adjustments, dynamic captions, and sound layouts for short-form feeds.",
+    features: ["Captivating Hook Timing", "Dynamic Caption Subtitles", "Color Grading Curation"],
+    iconName: "Video",
+    accent: "red",
+    badge: "VIDEO",
+    category: "Creative"
+  },
+  {
+    title: "Customers Relationship Management",
+    description: "Bespoke Hubspot, Salesforce, or Zoho setup to capture pipeline pipelines, log meetings, and drive retention.",
+    features: ["Lead Deal Stage Pipelines", "Automated Contact Logs", "Analytics Custom Charts"],
+    iconName: "Heart",
+    accent: "indigo",
+    badge: "CRM",
+    category: "Operations"
+  },
+  {
+    title: "Chatbots",
+    description: "Dynamic conversational flows and autoresponders integrated into WhatsApp, Instagram, and web pages.",
+    features: ["Intelligent FAQ Branching", "WhatsApp API Integration", "Live Agent Handoff Flows"],
+    iconName: "MessageCircle",
+    accent: "indigo",
+    badge: "AI CHAT",
+    category: "Operations"
+  },
+  {
+    title: "Marketing Automation",
+    description: "Cross-platform Zapier, Make, and webhook connections to unify lead transfers, alerts, and customer paths.",
+    features: ["Zapier Custom Workflows", "Webhook Synchronizations", "Lead Segment Tagging"],
+    iconName: "Zap",
+    accent: "blue",
+    badge: "AUTOMATION",
+    category: "Acquisition"
   }
 ];
 
@@ -116,6 +309,28 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Share2,
   PenTool,
   BarChart2,
+  Mail,
+  Phone,
+  Tv,
+  Layers,
+  FileText,
+  Inbox,
+  Calendar,
+  Users,
+  Image,
+  Clock,
+  MessageSquare,
+  Send,
+  ShoppingBag,
+  Store,
+  Box,
+  Gift,
+  Headphones,
+  Mic,
+  Video,
+  Heart,
+  MessageCircle,
+  Zap,
 };
 
 export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal, onOpenMergedModal, onOpenAuthModal }: HomePageProps) {
@@ -123,14 +338,22 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
   const [isPaused, setIsPaused] = React.useState(false);
   const [activePricingIndex, setActivePricingIndex] = React.useState(1); // Default to Recommended plan (index 1)
   const [currentTestimonial, setCurrentTestimonial] = React.useState(0);
+  const [selectedCategory, setSelectedCategory] = React.useState('All');
+  const [showMiniTools, setShowMiniTools] = React.useState(false);
+
+  const filteredServices = selectedCategory === 'All'
+    ? marketingServices
+    : marketingServices.filter(s => s.category === selectedCategory);
+
+  const activeSlide = currentSlide >= filteredServices.length ? 0 : currentSlide;
 
   React.useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % marketingServices.length);
+      setCurrentSlide((prev) => (prev + 1) % filteredServices.length);
     }, 4500);
     return () => clearInterval(interval);
-  }, [isPaused]);
+  }, [isPaused, filteredServices.length]);
 
   React.useEffect(() => {
     const testimonialInterval = setInterval(() => {
@@ -164,25 +387,21 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
         </div>
  
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl sm:text-6xl font-black tracking-tight leading-tight max-w-4xl mx-auto text-slate-900"
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
           >
-            Accelerate Growth. <br />
-            <span className="bg-gradient-to-r from-emerald-600 via-teal-500 to-indigo-600 bg-clip-text text-transparent">
-              Empower Technical Talents.
-            </span>
-          </motion.h1>
- 
+            <HeroTypewriter />
+          </motion.div>
+
           <motion.p 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed"
           >
-            We merge high-impact programmatic digital marketing and advertising campaigns with industrial tech training, providing businesses with robust client conversion funnels and students with certified Tech paths.
+            We merge high-impact programmatic digital marketing and advertising campaigns with marketing training, providing businesses and brands with robust leads, client conversion funnels and students with certified Marketing path.
           </motion.p>
  
           <motion.div 
@@ -201,7 +420,7 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
               onClick={() => onNavigate('academy')}
               className="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 font-semibold px-6 py-3 rounded-xl cursor-pointer text-xs transition-all flex items-center gap-2 hover:scale-[1.01]"
             >
-              Learn Tech <ChevronRight className="w-4 h-4" />
+              Learn <ChevronRight className="w-4 h-4" />
             </button>
           </motion.div>
         </div>
@@ -209,15 +428,47 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
 
       {/* 1.5 DIGITAL MARKETING SERVICES AUTO-SLIDE CAROUSEL SECTION */}
       <section className="py-20 bg-slate-50 border-b border-slate-200 overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"
+        >
           
-          <div className="text-center space-y-3 mb-12">
+          <div className="text-center space-y-3 mb-8">
             <h2 className="text-3xl font-black text-slate-900 tracking-tight sm:text-4xl">
               Our Digital Marketing Services
             </h2>
             <p className="text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
               Accelerate your business scale with precision-engineered organic and paid customer acquisition channels. Use the auto-sliding showcase below to explore.
             </p>
+          </div>
+
+          {/* Category Tabs Selector */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-8 max-w-3xl mx-auto">
+            {[
+              { id: 'All', label: 'All Services (30)' },
+              { id: 'Acquisition', label: 'Acquisition & Ads' },
+              { id: 'Creative', label: 'Content & Creative' },
+              { id: 'Operations', label: 'Digital Operations' },
+              { id: 'Support', label: 'Business Support' }
+            ].map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => {
+                  setSelectedCategory(cat.id);
+                  setCurrentSlide(0);
+                }}
+                className={`text-xs font-bold px-3.5 py-2 rounded-xl border transition-all cursor-pointer ${
+                  selectedCategory === cat.id
+                    ? 'bg-slate-900 text-white border-slate-900 shadow-sm scale-105'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
           </div>
 
           {/* Carousel Outer frame with pause on hover */}
@@ -229,8 +480,8 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
             {/* Auto-Slide Indicator Bar */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-slate-100">
               <div 
-                key={currentSlide}
-                className="h-full bg-indigo-500 transition-all duration-4500 ease-linear"
+                key={`${selectedCategory}-${activeSlide}`}
+                className="h-full bg-slate-900 transition-all duration-4500 ease-linear"
                 style={{ width: isPaused ? '100%' : '100%', transition: isPaused ? 'none' : 'width 4500ms linear' }}
               />
             </div>
@@ -243,7 +494,7 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
                 {/* Badge and Title Row */}
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-[10px] font-mono font-bold tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase">
-                    {marketingServices[currentSlide].badge}
+                    {filteredServices[activeSlide]?.badge}
                   </span>
                   
                   <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-400">
@@ -257,7 +508,8 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
                   {/* Service Icon */}
                   <div className="bg-indigo-50 text-indigo-600 w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm border border-indigo-100 shrink-0">
                     {(() => {
-                      const IconComponent = iconMap[marketingServices[currentSlide].iconName];
+                      const iconName = filteredServices[activeSlide]?.iconName;
+                      const IconComponent = iconName ? iconMap[iconName] : null;
                       return IconComponent ? <IconComponent className="w-7 h-7" /> : null;
                     })()}
                   </div>
@@ -265,10 +517,10 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
                   {/* Title & description text */}
                   <div className="space-y-2">
                     <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                      {marketingServices[currentSlide].title}
+                      {filteredServices[activeSlide]?.title}
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl">
-                      {marketingServices[currentSlide].description}
+                      {filteredServices[activeSlide]?.description}
                     </p>
                   </div>
                 </div>
@@ -277,7 +529,7 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
                 <div className="pt-4 border-t border-slate-100">
                   <h4 className="text-[10px] font-mono tracking-widest text-slate-400 uppercase mb-3">Key Deliverables</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {marketingServices[currentSlide].features.map((feature, index) => (
+                    {filteredServices[activeSlide]?.features.map((feature, index) => (
                       <div 
                         key={index} 
                         className="flex items-center gap-2 bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 text-xs text-slate-700 font-medium"
@@ -298,7 +550,7 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
                 <div className="flex flex-wrap items-center gap-3">
                   <button
                     onClick={onOpenMergedModal || onOpenApptModal}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-3 rounded-xl cursor-pointer text-xs transition-all flex items-center gap-2 shadow-sm"
+                    className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-3 rounded-xl cursor-pointer text-xs transition-all flex items-center gap-2 shadow-sm"
                   >
                     <Calendar className="w-4 h-4" />
                     <span>Get Free Audit & Strategy Session</span>
@@ -311,7 +563,7 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => {
-                        setCurrentSlide((prev) => (prev - 1 + marketingServices.length) % marketingServices.length);
+                        setCurrentSlide((prev) => (prev - 1 + filteredServices.length) % filteredServices.length);
                       }}
                       className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors cursor-pointer"
                       title="Previous Service"
@@ -320,7 +572,7 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
                     </button>
                     <button
                       onClick={() => {
-                        setCurrentSlide((prev) => (prev + 1) % marketingServices.length);
+                        setCurrentSlide((prev) => (prev + 1) % filteredServices.length);
                       }}
                       className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors cursor-pointer"
                       title="Next Service"
@@ -338,48 +590,95 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
 
           {/* Dot Indicators */}
           <div className="flex items-center justify-center gap-2 mt-6">
-            {marketingServices.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${
-                  currentSlide === idx ? 'w-6 bg-indigo-600' : 'w-2 bg-slate-300 hover:bg-slate-400'
-                }`}
-                title={`Go to service ${idx + 1}`}
-              />
-            ))}
+            {filteredServices.length <= 10 ? (
+              filteredServices.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentSlide(idx)}
+                  className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${
+                    activeSlide === idx ? 'w-6 bg-slate-900' : 'w-2 bg-slate-300 hover:bg-slate-400'
+                  }`}
+                  title={`Go to service ${idx + 1}`}
+                />
+              ))
+            ) : (
+              <span className="text-xs font-mono text-slate-500 font-bold">
+                Service {activeSlide + 1} of {filteredServices.length}
+              </span>
+            )}
           </div>
 
-        </div>
+        </motion.div>
       </section>
 
       {/* 2. SHOWCASE: 3 BEST MINI-TOOLS */}
       <section className="py-20 bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3 mb-10">
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight sm:text-4xl">
-            Test Your Marketing Trajectory
-          </h2>
-          <p className="text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
-            Try our three premier performance marketing tools directly. Ready to audit your outbound channels and map growth vectors?
-          </p>
-        </div>
-        
-        <MiniTools 
-          currentUser={null} 
-          showcaseOnly={true} 
-          onBookAppointment={onOpenApptModal} 
-          onNavigate={onNavigate}
-          onOpenAuthModal={onOpenAuthModal}
-        />
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+        >
+          <div className="text-center space-y-3 mb-6">
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight sm:text-4xl">
+              Test Your Marketing Trajectory
+            </h2>
+            <p className="text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
+              Try our three premier performance marketing tools directly. Ready to audit your outbound channels and map growth vectors?
+            </p>
+            
+            {!showMiniTools && (
+              <div className="pt-4">
+                <button
+                  onClick={() => setShowMiniTools(true)}
+                  className="bg-slate-900 hover:bg-slate-800 text-white font-extrabold px-8 py-3.5 rounded-xl cursor-pointer text-xs transition-all shadow-md active:scale-95 hover:scale-[1.01]"
+                >
+                  Test Tools
+                </button>
+              </div>
+            )}
+          </div>
+          
+          {showMiniTools && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              transition={{ duration: 0.4 }}
+            >
+              <MiniTools 
+                currentUser={null} 
+                showcaseOnly={true} 
+                onBookAppointment={onOpenApptModal} 
+                onNavigate={onNavigate}
+                onOpenAuthModal={onOpenAuthModal}
+              />
+              <div className="text-center pt-6">
+                <button
+                  onClick={() => setShowMiniTools(false)}
+                  className="text-slate-500 hover:text-slate-800 font-bold px-4 py-2 text-xs transition-all underline cursor-pointer"
+                >
+                  Collapse Tools
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
       </section>
 
       {/* 3. TRUSTED BRANDS & PORTFOLIO SHOWCASE - INFINITE SLIDING MARQUEE */}
       <section className="bg-white py-16 border-t border-slate-200 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="text-left">
             <h4 className="text-[10px] font-mono tracking-widest text-slate-400 uppercase">Trusted Portfolios</h4>
             <h2 className="text-2xl font-black text-slate-900 mt-1.5">Clients We Have Accelerated</h2>
-            <p className="text-xs text-slate-500 mt-1">Salami Consult guides elite brands across Fintech, Insurtech, Luxury Real Estate, FMCG, and AI platforms.</p>
+            <p className="text-xs text-slate-500 mt-1">Pulzitive guides elite brands across Fintech, Insurtech, Luxury Real Estate, FMCG, and AI platforms.</p>
           </div>
           <button
             onClick={() => onNavigate('portfolio')}
@@ -434,37 +733,51 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
             <span>Hover on marquee to pause exploration • Click any brand card to view verified performance records</span>
           </p>
         </div>
+        </motion.div>
       </section>
 
       {/* 4. KEY METRICS STATS - DIGITAL MARKETING SERVICES STATISTICS */}
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-200">
-        <div className="text-center mb-10">
-          <h4 className="text-[10px] font-mono tracking-widest text-slate-400 uppercase">Performance Metrics</h4>
-          <h2 className="text-xl font-bold text-slate-900 mt-1.5">SAC Digital Marketing Services Statistics</h2>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div className="p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
-            <p className="text-3xl font-black text-emerald-600">92%</p>
-            <p className="text-[10px] text-slate-500 font-mono uppercase mt-1">SEO Ranking Growth Index</p>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="text-center mb-10">
+            <h4 className="text-[10px] font-mono tracking-widest text-slate-400 uppercase">Performance Metrics</h4>
+            <h2 className="text-xl font-bold text-slate-900 mt-1.5">Pulzitive Digital Marketing Services Statistics</h2>
           </div>
-          <div className="p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
-            <p className="text-3xl font-black text-indigo-600">4.8x</p>
-            <p className="text-[10px] text-slate-500 font-mono uppercase mt-1">Average Paid Campaign ROAS</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div className="p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
+              <p className="text-3xl font-black text-emerald-600">92%</p>
+              <p className="text-[10px] text-slate-500 font-mono uppercase mt-1">SEO Ranking Growth Index</p>
+            </div>
+            <div className="p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
+              <p className="text-3xl font-black text-indigo-600">4.8x</p>
+              <p className="text-[10px] text-slate-500 font-mono uppercase mt-1">Average Paid Campaign ROAS</p>
+            </div>
+            <div className="p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
+              <p className="text-3xl font-black text-emerald-600">₦15M+</p>
+              <p className="text-[10px] text-slate-500 font-mono uppercase mt-1">Client Revenue Accelerated</p>
+            </div>
+            <div className="p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
+              <p className="text-3xl font-black text-indigo-600">25,000+</p>
+              <p className="text-[10px] text-slate-500 font-mono uppercase mt-1">Qualified Leads Generated</p>
+            </div>
           </div>
-          <div className="p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
-            <p className="text-3xl font-black text-emerald-600">₦15M+</p>
-            <p className="text-[10px] text-slate-500 font-mono uppercase mt-1">Client Revenue Accelerated</p>
-          </div>
-          <div className="p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
-            <p className="text-3xl font-black text-indigo-600">25,000+</p>
-            <p className="text-[10px] text-slate-500 font-mono uppercase mt-1">Qualified Leads Generated</p>
-          </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* 5. TESTIMONIAL CAROUSEL ZONE */}
       <section className="bg-slate-50 border-y border-slate-200 py-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="max-w-4xl mx-auto text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="max-w-4xl mx-auto text-center"
+        >
           <div className="mb-8">
             <h4 className="text-[10px] font-mono tracking-widest text-emerald-600 uppercase">Impact Stories</h4>
             <h2 className="text-xl font-bold text-slate-900 mt-1.5">Client Reviews</h2>
@@ -481,19 +794,19 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
               >
                 {[
                   {
-                    quote: "We consulted Salami Abiodun Consult for our search engine marketing and SEO. After implementing their structural keyword audit and PPC structure, our organic inquiries spiked by 80%, driving consistent conversions.",
+                    quote: "We consulted Pulzitive for our search engine marketing and SEO. After implementing their structural keyword audit and PPC structure, our organic inquiries spiked by 80%, driving consistent conversions.",
                     author: "Abiodun Salami",
-                    role: "Managing Director, Salami Consult Ltd",
+                    role: "Managing Director, Pulzitive Ltd",
                     initials: "AS"
                   },
                   {
-                    quote: "Salami Abiodun Consult rebuilt our entire company portal and optimized our conversion funnels. The site is incredibly fast, and their targeted Google campaigns delivered over 40% growth in leads.",
+                    quote: "Pulzitive rebuilt our entire company portal and optimized our conversion funnels. The site is incredibly fast, and their targeted Google campaigns delivered over 40% growth in leads.",
                     author: "Funmi Awosika",
                     role: "Head of Growth, LeadWay Tech Solutions",
                     initials: "FA"
                   },
                   {
-                    quote: "Their content creation team is exceptional. From SEO articles to cinematic short-form video assets, SAC helped us dominate our social media presence and establish genuine brand authority.",
+                    quote: "Their content creation team is exceptional. From SEO articles to cinematic short-form video assets, Pulzitive helped us dominate our social media presence and establish genuine brand authority.",
                     author: "Tunde Johnson",
                     role: "Marketing Director, Apex Commerce Group",
                     initials: "TJ"
@@ -554,7 +867,7 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
               />
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* 6. PERSUASIVE AGENCY ADVERTISEMENT */}
@@ -576,13 +889,19 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
 
-        <div className="max-w-5xl mx-auto text-center relative z-10 space-y-8">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="max-w-5xl mx-auto text-center relative z-10 space-y-8"
+        >
           <div className="space-y-4 max-w-3xl mx-auto">
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
-              Scale Your Company with Salami Abiodun Consult
+              Scale Your Company with Pulzitive
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              We are a premier digital marketing agency platform offering battle-tested growth marketing suite for companies. Partner with SAC to run targeted high-converting campaigns, build custom software platforms, optimize technical SEO structures, and publish authority-building visual content that consistently brings in high-value customers.
+              We are a premier digital marketing agency platform offering battle-tested growth marketing suite for companies. Partner with Pulzitive to run targeted high-converting campaigns, build custom software platforms, optimize technical SEO structures, and publish authority-building visual content that consistently brings in high-value customers.
             </p>
           </div>
 
@@ -622,10 +941,10 @@ export default function HomePage({ onNavigate, onOpenAuditModal, onOpenApptModal
               onClick={() => onNavigate('academy')}
               className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-800 font-bold px-8 py-3.5 rounded-xl cursor-pointer text-xs transition-all active:scale-95"
             >
-              Learn Tech
+              Learn
             </button>
           </div>
-        </div>
+        </motion.div>
       </section>
 
     </div>

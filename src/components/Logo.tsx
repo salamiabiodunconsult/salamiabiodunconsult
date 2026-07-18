@@ -1,81 +1,85 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from 'react';
 
 interface LogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  showText?: boolean;
 }
 
-export default function Logo({ className = '', size = 'md' }: LogoProps) {
+export default function Logo({ className = '', size = 'md', showText = true }: LogoProps) {
+  // Height classes for consistent responsive design
   const sizeClasses = {
-    sm: 'w-8 h-8',
-    md: 'w-11 h-11',
-    lg: 'w-16 h-16'
+    sm: 'h-6 sm:h-7',
+    md: 'h-9 sm:h-10',
+    lg: 'h-14 sm:h-16'
   };
 
   return (
-    <svg 
-      viewBox="0 0 200 200" 
-      className={`${sizeClasses[size]} ${className} select-none shrink-0`}
-      aria-label="Salami Abiodun Consult Logo"
-    >
-      <defs>
-        {/* Arc for curved text on top half */}
+    <div className={`flex items-center gap-2 select-none shrink-0 ${className}`}>
+      {/* High-fidelity vector SVG matching the uploaded custom P logo */}
+      <svg 
+        viewBox="0 0 160 160" 
+        className={`${sizeClasses[size]} aspect-square`}
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg"
+        aria-label="Pulzitive P Logo Symbol"
+      >
+        {/* Outer dark blue border stripe of P */}
         <path 
-          id="logoTextCurve" 
-          d="M 22,100 A 78,78 0 1,1 178,100" 
-          fill="none" 
+          d="M 40,25 L 40,135 M 40,25 L 95,25 C 125,25 125,75 95,75 L 40,75" 
+          stroke="#104a7b" 
+          strokeWidth="11" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
         />
-      </defs>
+        
+        {/* Inner Yellow Stripe */}
+        <path 
+          d="M 52,38 L 52,62 M 52,38 L 88,38 C 102,38 102,62 88,62 L 52,62" 
+          stroke="#eec20e" 
+          strokeWidth="7" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+        />
+        
+        {/* Middle Green Stripe */}
+        <path 
+          d="M 46,31.5 L 46,120 M 46,31.5 L 92,31.5 C 114,31.5 114,68.5 92,68.5 L 46,68.5" 
+          stroke="#008f51" 
+          strokeWidth="6" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+        />
 
-      {/* Outer black solid circle */}
-      <circle cx="100" cy="100" r="98" fill="#000" />
-      
-      {/* Outer white delicate border */}
-      <circle cx="100" cy="100" r="95" fill="none" stroke="#fff" strokeWidth="2.5" />
-      
-      {/* Curved "SALAMI ABIODUN CONSULT" text */}
-      <text 
-        fill="#fff" 
-        fontSize="14.5" 
-        fontWeight="800" 
-        fontFamily="'Inter', 'Space Grotesk', system-ui, sans-serif" 
-        letterSpacing="4.2"
-      >
-        <textPath href="#logoTextCurve" startOffset="50%" textAnchor="middle">
-          SALAMI ABIODUN CONSULT
-        </textPath>
-      </text>
+        {/* Inner Red stripe crossing bottom stem corner */}
+        <path 
+          d="M 58,45 L 58,55 M 58,45 L 82,45 C 90,45 90,55 82,55 L 58,55" 
+          stroke="#d92d2d" 
+          strokeWidth="5" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+        />
 
-      {/* Decorative dot in the bottom */}
-      <circle cx="100" cy="178" r="4" fill="#fff" />
+        {/* The active heartbeat/ECG wave crossing the P from left to right */}
+        <path 
+          d="M 12,75 L 34,75 L 44,45 L 54,105 L 64,25 L 74,90 L 84,70 L 94,75 L 115,75" 
+          stroke="#008f51" 
+          strokeWidth="7" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+        />
+
+        {/* Beautiful high-contrast glowing heartbeat accents */}
+        <circle cx="64" cy="25" r="4.5" fill="#d92d2d" />
+        <circle cx="54" cy="105" r="4.5" fill="#eec20e" />
+        <circle cx="44" cy="45" r="4.5" fill="#104a7b" />
+      </svg>
       
-      {/* Inner white circle backing */}
-      <circle cx="100" cy="100" r="68" fill="#fff" />
-      
-      {/* Inner black solid circle */}
-      <circle cx="100" cy="100" r="54" fill="#000" />
-      
-      {/* Inner white delicate border */}
-      <circle cx="100" cy="100" r="52" fill="none" stroke="#fff" strokeWidth="1" />
-      
-      {/* Center 'SAC' text */}
-      <text 
-        x="100" 
-        y="114" 
-        fill="#fff" 
-        fontSize="40" 
-        fontWeight="900" 
-        fontFamily="'Inter', 'Space Grotesk', system-ui, sans-serif" 
-        letterSpacing="1" 
-        textAnchor="middle"
-      >
-        SAC
-      </text>
-    </svg>
+      {showText && (
+        <span className="font-sans font-black tracking-tight text-white hover:text-emerald-400 transition-colors text-base sm:text-lg">
+          Pulzitive
+        </span>
+      )}
+    </div>
   );
 }

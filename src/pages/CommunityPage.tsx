@@ -21,7 +21,7 @@ export default function CommunityPage({ onTriggerNotification }: CommunityPagePr
     {
       id: "j1",
       title: "Senior Full-Stack React Engineer",
-      company: "Salami Abiodun Consult (Client Project)",
+      company: "Pulzitive (Client Project)",
       type: "Contract",
       location: "Lagos, NG (Hybrid)",
       salary: "₦850,000 - ₦1,200,000 / month",
@@ -84,7 +84,7 @@ export default function CommunityPage({ onTriggerNotification }: CommunityPagePr
     },
     {
       title: "Lagos Hackathon 2026",
-      desc: "A bi-annual developer competition hosted by Salami Abiodun Consult. Build generative AI client wrappers with Gemini. Prize pool includes ₦1,500,000 in sponsor grants.",
+      desc: "A bi-annual developer competition hosted by Pulzitive. Build generative AI client wrappers with Gemini. Prize pool includes ₦1,500,000 in sponsor grants.",
       icon: Code,
       color: "text-emerald-400 bg-emerald-500/10"
     },
@@ -226,7 +226,7 @@ export default function CommunityPage({ onTriggerNotification }: CommunityPagePr
                   <div className="mt-5 pt-3.5 border-t border-slate-900/60 flex items-center justify-between gap-2">
                     <span className="text-[9px] font-mono text-slate-500">{rc.age} • {rc.duration}</span>
                     <button
-                      onClick={() => onTriggerNotification?.(`Welcome to Salami Abiodun Consult! To unlock your free "${rc.title}" Sandbox Cohort, please Sign In / Sign Up. Master this logic, then upgrade to our premium specialized courses!`)}
+                      onClick={() => onTriggerNotification?.(`Welcome to Pulzitive! To unlock your free "${rc.title}" Sandbox Cohort, please Sign In / Sign Up. Master this logic, then upgrade to our premium specialized courses!`)}
                       className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-lg text-[10px] transition-all cursor-pointer whitespace-nowrap active:scale-95"
                     >
                       Register Free

@@ -30,6 +30,7 @@ export interface UserProfile {
   schoolId?: string; // for Teacher / Student
   bio?: string;
   companyName?: string;
+  websiteUrl?: string;
 }
 
 export interface Course {

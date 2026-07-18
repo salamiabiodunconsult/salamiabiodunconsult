@@ -20,7 +20,7 @@ export default function AITutorWidget() {
     {
       id: 'welcome',
       role: 'model',
-      text: "Hello! I am your **SAC Tech Tutor**, powered by **Gemini 3.5 Flash**. I can help you understand kids coding (Scratch, Mobile App development), graphics design, video editing, React, SEO, and artificial intelligence! How can I help you excel today?",
+      text: "Hello! I am your **Pulzitive AI Tutor**, powered by **Gemini 3.5 Flash**. I can help you understand kids coding (Scratch, Mobile App development), graphics design, video editing, React, SEO, and artificial intelligence! How can I help you excel today?",
       timestamp: new Date()
     }
   ]);
@@ -31,19 +31,19 @@ export default function AITutorWidget() {
   const academyFAQs = [
     {
       q: "Who can enroll in tech/coding classes?",
-      a: "Children from age 5 to 16, as well as young adults and professionals! Salami Abiodun Consult (SAC) offers tailored learning pathways: Scratch coding for kids aged 5-11, and advanced modules like Frontend Web Design, Python, Roblox 3D Game Design, and Robotics & IoT for teenagers."
+      a: "Children from age 5 to 16, as well as young adults and professionals! Pulzitive offers tailored learning pathways: Scratch coding for kids aged 5-11, and advanced modules like Frontend Web Design, Python, Roblox 3D Game Design, and Robotics & IoT for teenagers."
     },
     {
       q: "Are hardware kits needed for Robotics?",
-      a: "No! For our interactive online courses, we use advanced 3D virtual microcontroller simulation environments (such as Tinkercad and virtual Micro:bit) so students can program smart circuits completely software-side. For physical training sessions, all hardware microcontrollers are supplied by SAC."
+      a: "No! For our interactive online courses, we use advanced 3D virtual microcontroller simulation environments (such as Tinkercad and virtual Micro:bit) so students can program smart circuits completely software-side. For physical training sessions, all hardware microcontrollers are supplied by Pulzitive."
     },
     {
       q: "Are certificates/diplomas awarded?",
-      a: "Yes! Every student who completes 100% of their course modules, capstone projects, and milestones receives an accredited SAC Digital Literacy & Tech Competency Certificate or Diploma."
+      a: "Yes! Every student who completes 100% of their course modules, capstone projects, and milestones receives an accredited Pulzitive Digital Literacy & Tech Competency Certificate or Diploma."
     },
     {
       q: "Can I speak to a real human?",
-      a: "Yes, absolutely! You can click 'Chat Live' on the WhatsApp banner at the top, or text/call Salami Abiodun Consult directly on WhatsApp at +234 815 422 4426, or email us at info.salamiabiodunconsult@gmail.com."
+      a: "Yes, absolutely! You can click 'Chat Live' on the WhatsApp banner at the top, or text/call Pulzitive directly on WhatsApp at +234 815 422 4426, or email us at pulzitive@gmail.com."
     }
   ];
 
@@ -163,7 +163,7 @@ export default function AITutorWidget() {
                   <Brain className="w-5 h-5 text-slate-900" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm tracking-wide">SAC AI Tutor</h3>
+                  <h3 className="font-semibold text-sm tracking-wide">Pulzitive AI Tutor</h3>
                   <div className="flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span className="text-[10px] text-gray-300 font-mono">Gemini 3.5 Flash Active</span>

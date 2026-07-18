@@ -142,12 +142,12 @@ export default function MarketplacePage({ onCheckout, onTriggerNotification, onO
             ))}
           </div>
 
-          {/* Salami Abiodun Consult Agency Pricing */}
+          {/* Pulzitive Agency Pricing */}
           <div className="border-t border-slate-900 pt-10 space-y-8">
             <div className="space-y-3">
               <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] px-3.5 py-1.5 rounded-full uppercase tracking-wider font-semibold shadow-sm">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-                <span>Salami Abiodun Consult Agency Pricing</span>
+                <span>Pulzitive Agency Pricing</span>
               </div>
               <h2 className="text-xl font-bold text-white tracking-tight">
                 Growth-Engineered Marketing Tiers

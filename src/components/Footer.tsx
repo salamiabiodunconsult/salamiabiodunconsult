@@ -78,35 +78,35 @@ export default function Footer({ onNavigate, onOpenAdminLogin }: FooterProps) {
         {/* About column */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Logo size="sm" />
-            <span className="font-extrabold text-slate-950 text-sm tracking-tight">SAC Ecosystem</span>
+            <Logo size="sm" showText={false} />
+            <span className="font-extrabold text-slate-950 text-sm tracking-tight">Pulzitive Ecosystem</span>
           </div>
           <p className="text-xs leading-relaxed text-slate-500">
-            A consultancy integrating highly specialized digital marketing services with an industry-grade Tech learning hub.
+            A premier brand communication, Digital Marketing Intelligence, and Advertising Agency with integrated learning paths.
           </p>
           <div className="flex flex-wrap gap-3 text-slate-400 text-xs">
-            <a href="https://instagram.com/Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="Instagram" className="hover:text-emerald-600 transition-colors">
+            <a href="https://instagram.com/pulzitive" target="_blank" rel="noopener noreferrer" title="Instagram" className="hover:text-emerald-600 transition-colors">
               <Instagram className="w-4 h-4" />
             </a>
-            <a href="https://facebook.com/Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="Facebook" className="hover:text-emerald-600 transition-colors">
+            <a href="https://facebook.com/pulzitive" target="_blank" rel="noopener noreferrer" title="Facebook" className="hover:text-emerald-600 transition-colors">
               <Facebook className="w-4 h-4" />
             </a>
             <a href="https://wa.me/2348154224426" target="_blank" rel="noopener noreferrer" title="WhatsApp" className="hover:text-emerald-600 transition-colors">
               <MessageCircle className="w-4 h-4" />
             </a>
-            <a href="https://tiktok.com/@Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="TikTok" className="hover:text-emerald-600 transition-colors">
+            <a href="https://tiktok.com/@pulzitive" target="_blank" rel="noopener noreferrer" title="TikTok" className="hover:text-emerald-600 transition-colors">
               <Video className="w-4 h-4" />
             </a>
-            <a href="https://twitter.com/Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="Twitter / X" className="hover:text-emerald-600 transition-colors">
+            <a href="https://twitter.com/pulzitive" target="_blank" rel="noopener noreferrer" title="Twitter / X" className="hover:text-emerald-600 transition-colors">
               <Twitter className="w-4 h-4" />
             </a>
-            <a href="https://linkedin.com/in/Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="LinkedIn" className="hover:text-emerald-600 transition-colors">
+            <a href="https://linkedin.com/company/pulzitive" target="_blank" rel="noopener noreferrer" title="LinkedIn" className="hover:text-emerald-600 transition-colors">
               <Linkedin className="w-4 h-4" />
             </a>
-            <a href="https://g.page/Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="Google Business Profile" className="hover:text-emerald-600 transition-colors">
+            <a href="https://g.page/pulzitive" target="_blank" rel="noopener noreferrer" title="Google Business Profile" className="hover:text-emerald-600 transition-colors">
               <Store className="w-4 h-4" />
             </a>
-            <a href="https://youtube.com/@Salamiabiodunconsult" target="_blank" rel="noopener noreferrer" title="YouTube" className="hover:text-emerald-600 transition-colors">
+            <a href="https://youtube.com/@pulzitive" target="_blank" rel="noopener noreferrer" title="YouTube" className="hover:text-emerald-600 transition-colors">
               <Youtube className="w-4 h-4" />
             </a>
           </div>
@@ -118,8 +118,8 @@ export default function Footer({ onNavigate, onOpenAdminLogin }: FooterProps) {
           <div className="space-y-3 text-xs text-slate-600">
             <p className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-emerald-600 shrink-0" />
-              <a href="mailto:info.salamiabiodunconsult@gmail.com" className="hover:text-slate-900 transition-colors truncate">
-                info.salamiabiodunconsult@gmail.com
+              <a href="mailto:pulzitive@gmail.com" className="hover:text-slate-900 transition-colors truncate">
+                pulzitive@gmail.com
               </a>
             </p>
             <p className="flex items-center gap-2">
@@ -191,7 +191,7 @@ export default function Footer({ onNavigate, onOpenAdminLogin }: FooterProps) {
             )}
             {etherealUrl && (
               <div className="mt-2 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-[10px] text-emerald-800 leading-relaxed">
-                🎉 <strong>Subscription Registered!</strong> Since custom SMTP is not set up, you can click below to preview the admin dispatch notification sent to <strong>info.salamiabiodunconsult@gmail.com</strong>:
+                🎉 <strong>Subscription Registered!</strong> Since custom SMTP is not set up, you can click below to preview the admin dispatch notification sent to <strong>pulzitive@gmail.com</strong>:
                 <a 
                   href={etherealUrl} 
                   target="_blank" 
@@ -208,7 +208,7 @@ export default function Footer({ onNavigate, onOpenAdminLogin }: FooterProps) {
       </div>
 
       <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-400 gap-4">
-        <p>SAC Portal Ecosystem © 2026. All Rights Reserved.</p>
+        <p>Pulzitive Ecosystem © 2026. All Rights Reserved.</p>
         <div className="flex gap-4">
           <button onClick={() => onNavigate('privacy')} className="hover:text-slate-600 transition-colors cursor-pointer bg-transparent border-none p-0">Privacy Policy</button>
           <button onClick={() => onNavigate('terms')} className="hover:text-slate-600 transition-colors cursor-pointer bg-transparent border-none p-0">Terms of Use</button>

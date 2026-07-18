@@ -210,7 +210,7 @@ export function MiniTools({ currentUser, onBookAppointment, showcaseOnly = false
               }}
               className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-3 rounded-xl transition-all shadow-md shadow-indigo-600/10 cursor-pointer text-center shrink-0"
             >
-              Join Now to Unlock Full Suite
+              Start to Unlock Full Suite
             </button>
           </div>
 
@@ -1274,7 +1274,7 @@ function UtmLinkBuilderTool({ currentUser }: UtmProps) {
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="salamiconsult.com/academy"
+            placeholder="pulzitive.com/academy"
             className="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-slate-900 focus:outline-none"
           />
         </div>
@@ -1497,7 +1497,7 @@ function ContentRepurposerTool() {
                 type="text"
                 value={originalLink}
                 onChange={(e) => setOriginalLink(e.target.value)}
-                placeholder="salamiconsult.com/case-studies/digital-lead-growth"
+                placeholder="pulzitive.com/case-studies/digital-lead-growth"
                 className="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-slate-900 focus:outline-none"
               />
             </div>
@@ -1663,7 +1663,7 @@ function ContentRepurposerTool() {
    ========================================================================== */
 function SubjectLinePreviewerTool() {
   const [subjectLine, setSubjectLine] = useState('');
-  const [senderName, setSenderName] = useState('Abiodun Salami');
+  const [senderName, setSenderName] = useState('Pulzitive Agency');
   const [preheader, setPreheader] = useState('');
   const [viewMode, setViewMode] = useState<'mobile' | 'desktop'>('mobile');
 
@@ -1706,7 +1706,7 @@ function SubjectLinePreviewerTool() {
               type="text"
               value={senderName}
               onChange={(e) => setSenderName(e.target.value)}
-              placeholder="Abiodun Salami"
+              placeholder="Pulzitive"
               className="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-slate-900 focus:outline-none"
             />
           </div>
